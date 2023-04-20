@@ -352,27 +352,6 @@ class Message extends Base {
     }
 
     /**
-     * 
-     * @param {string} newText 
-     * @param {object} options 
-     * @returns {Promise}
-     */
-    async edit(content, options = {}) {
-        options = {
-            linkPreview: options.linkPreview,
-            mentionedJidList: Array.isArray(options.mentions) ? options.mentions : [options.mentions]
-        }
-        const message = await this.client.pupPage.evaluate((msgId, content, options) => {
-            return window.WWebJS.chat.editMessage(msgId, content, options)
-        }, this.id._serialized, content, options)
-
-        if (!message) return null
-        
-        if (!message) return false
-        return message?.id
-    }
-
-    /**
      * Accept Group V4 Invite
      * @returns {Promise<Object>}
      */

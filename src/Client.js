@@ -107,6 +107,10 @@ class Client extends EventEmitter {
             page = (await browser.pages())[0];
         }
 
+        if (this.options.proxyAuthentication !== undefined) {
+            await page.authenticate(this.options.proxyAuthentication);
+        }
+
         await page.setUserAgent(this.options.userAgent);
         if (this.options.bypassCSP) await page.setBypassCSP(true);
 
@@ -342,6 +346,13 @@ class Client extends EventEmitter {
                      * @param {GroupNotification} notification GroupNotification with more information about the action
                      */
                     this.emit(Events.GROUP_LEAVE, notification);
+                } else if (msg.subtype === 'promote' || msg.subtype === 'demote') {
+                    /**
+                     * Emitted when a current user is promoted to an admin or demoted to a regular user.
+                     * @event Client#group_admin_changed
+                     * @param {GroupNotification} notification GroupNotification with more information about the action
+                     */
+                    this.emit(Events.GROUP_ADMIN_CHANGED, notification);
                 } else {
                     /**
                      * Emitted when group settings are updated, such as subject, description or picture.
@@ -825,6 +836,23 @@ class Client extends EventEmitter {
     }
 
     /**
+     * 
+     * @param {string} chatId 
+     * @returns {Promise<GroupChat>}
+     */
+    async groupMetadata(chatId) {
+        let chat = await this.pupPage.evaluate(async (chatId) => {
+            let chatWid = await window.Store.WidFactory.createWid(chatId)
+            let chat = await window.Store.GroupMetadata.find(chatWid)
+
+            return chat.serialize()
+        }, chatId)
+
+        if (!chat) return false
+        return chat
+    }
+
+    /**
      * Get all current contact instances
      * @returns {Promise<Array<Contact>>}
      */
@@ -1016,7 +1044,7 @@ class Client extends EventEmitter {
      * @param {?Date} unmuteDate Date when the chat will be unmuted, leave as is to mute forever
      */
     async muteChat(chatId, unmuteDate) {
-        unmuteDate = unmuteDate ? unmuteDate.getTime() / 1000 : -1;
+        unmuteDate = unmuteDate ? unmuteDate : -1;
         await this.pupPage.evaluate(async (chatId, timestamp) => {
             let chat = await window.Store.Chat.get(chatId);
             await chat.mute.mute({ expiration: timestamp, sendDevice: !0 });
@@ -1032,6 +1060,24 @@ class Client extends EventEmitter {
             let chat = await window.Store.Chat.get(chatId);
             await window.Store.Cmd.muteChat(chat, false);
         }, chatId);
+    }
+
+    /**
+     * 
+     * @param {string} chatId ID of the chat that will be muted
+     * @param {number} ephemeralDuration 
+     */
+    async setEphemeral(chatId, ephemeralDuration) {
+        ephemeralDuration = ephemeralDuration ? ephemeralDuration : 86400
+        await this.pupPage.evaluate(async (chatId, ephemeralDuration) => {
+            const chat = window.Store.Chat.get(chatId)
+
+            if (chat.isGroup) {
+                return await window.WWebJS.group.setProperty(chat.id, 'ephemeral', ephemeralDuration)
+            }
+
+            return await window.Store.ChangeEphemeralDuration(chat, ephemeralDuration).catch((e) => e)
+        }, chatId, ephemeralDuration)
     }
 
     /**
@@ -1397,6 +1443,34 @@ class Client extends EventEmitter {
         return this.pupPage.evaluate(() => {
             return WPP.whatsapp.Conn.attributes
         })
+    }
+
+    /**
+     * 
+     * @param {string} type light or dark 
+     */
+    async setTheme(type = 'dark') {
+        await this.pupPage.evaluate(async (type) => {
+            await window.StorageEvent.Theme.setTheme(type);
+            return true
+        }, type);
+    }
+
+    /**
+     * 
+     * @returns {string}
+     */
+    async getTheme() {
+        const theme = await this.pupPage.evaluate(async () => {
+            if (window.localStorage) {
+                return await JSON.parse(JSON.stringify(window.localStorage))?.theme
+            } else {
+                return await window.Store.Theme.getTheme()
+            }
+        })
+
+        if (!theme) return false
+        return theme
     }
 }
 module.exports = Client;

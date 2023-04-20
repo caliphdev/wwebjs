@@ -1475,16 +1475,6 @@ class Client extends EventEmitter {
 
     /**
      * 
-     * @returns {Array}
-     */
-    getBlocklist() {
-        return this.pupPage.evaluate(() => {
-            return window.Store.Blocklist.serialize()
-        })
-    }
-
-    /**
-     * 
      * @param {string} chatId 
      * @returns 
      */

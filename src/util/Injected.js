@@ -1197,4 +1197,13 @@ exports.LoadUtils = () => {
             xhr.send(null)
         })
     }
+
+    window.WWebJS.getChatOnline = async(chatId) => {
+        const chat = window.Store.Chat.get(chatId);
+        if (!chat) {
+            return false;
+        }
+        await chat.presence.subscribe();
+        return chat.presence.attributes.isOnline;
+    }
 };

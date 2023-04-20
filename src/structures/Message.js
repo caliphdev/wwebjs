@@ -352,6 +352,27 @@ class Message extends Base {
     }
 
     /**
+     * 
+     * @param {string} newText 
+     * @param {object} options 
+     * @returns {Promise}
+     */
+    async edit(content, options = {}) {
+        options = {
+            linkPreview: options.linkPreview,
+            mentionedJidList: Array.isArray(options.mentions) ? options.mentions : [options.mentions]
+        }
+        const message = await this.client.pupPage.evaluate((msgId, content, options) => {
+            return window.WWebJS.chat.editMessage(msgId, content, options)
+        }, this.id._serialized, content, options)
+
+        if (!message) return null
+        
+        if (!message) return false
+        return message?.id
+    }
+
+    /**
      * Accept Group V4 Invite
      * @returns {Promise<Object>}
      */
@@ -385,24 +406,9 @@ class Message extends Base {
             return undefined;
         }
 
-        const result = await this.client.pupPage.evaluate(async (msgId) => {
-            const msg = window.Store.Msg.get(msgId);
-
-            if (msg.mediaData.mediaStage != 'RESOLVED') {
-                // try to resolve media
-                await msg.downloadMedia({
-                    downloadEvenIfExpensive: true,
-                    rmrReason: 1
-                });
-            }
-
-            if (msg.mediaData.mediaStage.includes('ERROR') || msg.mediaData.mediaStage === 'FETCHING') {
-                // media could not be downloaded
-                return undefined;
-            }
-
+        const result = await this.client.pupPage.evaluate(async (msg) => {
             try {
-                const decryptedMedia = await window.Store.DownloadManager.downloadAndDecrypt({
+                const decryptedMedia = await (window.Store.DownloadManager?.downloadAndMaybeDecrypt || window.Store.DownloadManager?.downloadAndDecrypt)({
                     directPath: msg.directPath,
                     encFilehash: msg.encFilehash,
                     filehash: msg.filehash,
@@ -421,12 +427,12 @@ class Message extends Base {
                     filesize: msg.size
                 };
             } catch (e) {
-                if(e.status && e.status === 404) return undefined;
-                throw e;
+                if (e.status && e.status === 404) return undefined
+                throw e
             }
-        }, this.id._serialized);
+        }, this)
 
-        if (!result) return undefined;
+        if (!result) return undefined
         return new MessageMedia(result.mimetype, result.data, result.filename, result.filesize);
     }
 

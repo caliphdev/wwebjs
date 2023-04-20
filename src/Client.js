@@ -57,9 +57,9 @@ class Client extends EventEmitter {
         super();
 
         this.options = Util.mergeDefault(DefaultOptions, options);
-        
-        if(!this.options.authStrategy) {
-            if(Object.prototype.hasOwnProperty.call(this.options, 'session')) {
+
+        if (!this.options.authStrategy) {
+            if (Object.prototype.hasOwnProperty.call(this.options, 'session')) {
                 process.emitWarning(
                     'options.session is deprecated and will be removed in a future release due to incompatibility with multi-device. ' +
                     'Use the LocalAuth authStrategy, don\'t pass in a session as an option, or suppress this warning by using the LegacySessionAuth strategy explicitly (see https://wwebjs.dev/guide/authentication.html#legacysessionauth-strategy).',
@@ -99,14 +99,14 @@ class Client extends EventEmitter {
             page = await browser.newPage();
         } else {
             const browserArgs = [...(puppeteerOpts.args || [])];
-            if(!browserArgs.find(arg => arg.includes('--user-agent'))) {
+            if (!browserArgs.find(arg => arg.includes('--user-agent'))) {
                 browserArgs.push(`--user-agent=${this.options.userAgent}`);
             }
 
-            browser = await puppeteer.launch({...puppeteerOpts, args: browserArgs});
+            browser = await puppeteer.launch({ ...puppeteerOpts, args: browserArgs });
             page = (await browser.pages())[0];
         }
-      
+
         await page.setUserAgent(this.options.userAgent);
         if (this.options.bypassCSP) await page.setBypassCSP(true);
 
@@ -130,7 +130,7 @@ class Client extends EventEmitter {
         await page.evaluate(() => {
             WPP.chat.defaultSendMessageOptions.createChat = true
         })
-        .catch(() => false)
+            .catch(() => false)
 
         if (this.options.markOnlineAvailable) WPP.conn.setKeepAlive(this.options.markOnlineAvailable)
 
@@ -203,7 +203,7 @@ class Client extends EventEmitter {
         // Scan-qrcode selector was found. Needs authentication
         if (needAuthentication) {
             const { failed, failureEventPayload, restart } = await this.authStrategy.onAuthenticationNeeded();
-            if(failed) {
+            if (failed) {
                 /**
                  * Emitted when there has been an error while trying to restore an existing session
                  * @event Client#auth_failure
@@ -247,11 +247,11 @@ class Client extends EventEmitter {
                         if (mut.type === 'attributes' && mut.attributeName === 'data-ref') {
                             window.qrChanged(mut.target.dataset.ref);
                         } else
-                        // Listens to retry button, when found, click it
-                        if (mut.type === 'childList') {
-                            const retry_button = document.querySelector(selectors.QR_RETRY_BUTTON);
-                            if (retry_button) retry_button.click();
-                        }
+                            // Listens to retry button, when found, click it
+                            if (mut.type === 'childList') {
+                                const retry_button = document.querySelector(selectors.QR_RETRY_BUTTON);
+                                if (retry_button) retry_button.click();
+                            }
                     });
                 });
                 obs.observe(qr_container.parentElement, {
@@ -268,10 +268,10 @@ class Client extends EventEmitter {
             // Wait for code scan
             try {
                 await page.waitForSelector(INTRO_IMG_SELECTOR, { timeout: 0 });
-            } catch(error) {
+            } catch (error) {
                 if (
-                    error.name === 'ProtocolError' && 
-                    error.message && 
+                    error.name === 'ProtocolError' &&
+                    error.message &&
                     error.message.match(/Target closed/)
                 ) {
                     // something has called .destroy() while waiting
@@ -300,7 +300,7 @@ class Client extends EventEmitter {
                 window.WPP.isReady
             )
         })
-        .catch(() => false);
+            .catch(() => false);
 
         await page.evaluate(async () => {
             // safely unregister service workers
@@ -584,7 +584,7 @@ class Client extends EventEmitter {
             window.Store.Msg.on('remove', (msg) => { if (msg.isNewMsg) window.onRemoveMessageEvent(window.WWebJS.getMessageModel(msg)); });
             window.Store.AppState.on('change:state', (_AppState, state) => { window.onAppStateChangedEvent(state); });
             window.Store.Conn.on('change:battery', (state) => { window.onBatteryStateChangedEvent(state); });
-            window.Store.Call.on('add', (call) => { 
+            window.Store.Call.on('add', (call) => {
                 if (call.isGroup) {
                     window.onIncomingCall(call)
                 }
@@ -594,13 +594,13 @@ class Client extends EventEmitter {
                     window.onIncomingCall(call);
                 };
             });
-            window.Store.Msg.on('add', (msg) => { 
+            window.Store.Msg.on('add', (msg) => {
                 if (msg.isNewMsg) {
-                    if(msg.type === 'ciphertext') {
+                    if (msg.type === 'ciphertext') {
                         // defer message event until ciphertext is resolved (type changed)
                         msg.once('change:type', (_msg) => window.onAddMessageEvent(window.WWebJS.getMessageModel(_msg)));
                     } else {
-                        window.onAddMessageEvent(window.WWebJS.getMessageModel(msg)); 
+                        window.onAddMessageEvent(window.WWebJS.getMessageModel(msg));
                     }
                 }
             });
@@ -609,7 +609,7 @@ class Client extends EventEmitter {
                 if (vote.parentMsgKey) vote.pollCreationMessage = window.Store.Msg.get(vote.parentMsgKey).serialize();
                 window.onPollVote(vote);
             });
-            
+
             {
                 const module = window.Store.createOrUpdateReactionsModule;
                 const ogMethod = module.createOrUpdateReactions;
@@ -619,7 +619,7 @@ class Client extends EventEmitter {
                         const parentMsgKey = window.Store.MsgKey.fromString(reaction.parentMsgKey);
                         const timestamp = reaction.timestamp / 1000;
 
-                        return {...reaction, msgKey, parentMsgKey, timestamp };
+                        return { ...reaction, msgKey, parentMsgKey, timestamp };
                     }));
 
                     return ogMethod(...args);
@@ -637,7 +637,7 @@ class Client extends EventEmitter {
         // Disconnect when navigating away when in PAIRING state (detect logout)
         this.pupPage.on('framenavigated', async () => {
             const appState = await this.getState();
-            if(!appState || appState === WAState.PAIRING) {
+            if (!appState || appState === WAState.PAIRING) {
                 await this.authStrategy.disconnect();
                 this.emit(Events.DISCONNECTED, 'NAVIGATION');
                 await this.destroy();
@@ -755,14 +755,14 @@ class Client extends EventEmitter {
             internalOptions.list = content;
             content = '';
         }
-        
+
         if (internalOptions.sendMediaAsSticker && internalOptions.attachment) {
             internalOptions.attachment = await Util.formatToWebpSticker(
                 internalOptions.attachment, {
-                    packName: options.packName,
-                    packPublish: options.packPublish,
-                    categories: options.categories
-                }, this.pupPage
+                packName: options.packName,
+                packPublish: options.packPublish,
+                categories: options.categories
+            }, this.pupPage
             );
         }
 
@@ -919,14 +919,14 @@ class Client extends EventEmitter {
 
         return couldSet;
     }
-    
+
     /**
      * Gets the current connection state for the client
      * @returns {WAState} 
      */
     async getState() {
         return await this.pupPage.evaluate(() => {
-            if(!window.Store) return null;
+            if (!window.Store) return null;
             return window.Store.AppState.state;
         });
     }
@@ -1020,7 +1020,7 @@ class Client extends EventEmitter {
         unmuteDate = unmuteDate ? unmuteDate.getTime() / 1000 : -1;
         await this.pupPage.evaluate(async (chatId, timestamp) => {
             let chat = await window.Store.Chat.get(chatId);
-            await chat.mute.mute({expiration: timestamp, sendDevice:!0});
+            await chat.mute.mute({ expiration: timestamp, sendDevice: !0 });
         }, chatId, unmuteDate || -1);
     }
 
@@ -1057,11 +1057,11 @@ class Client extends EventEmitter {
                 const chatWid = window.Store.WidFactory.createWid(contactId);
                 return await window.Store.ProfilePic.profilePicFind(chatWid);
             } catch (err) {
-                if(err.name === 'ServerStatusCodeError') return undefined;
+                if (err.name === 'ServerStatusCodeError') return undefined;
                 throw err;
             }
         }, contactId);
-        
+
         return profilePic ? profilePic.eurl : undefined;
     }
 
@@ -1075,8 +1075,8 @@ class Client extends EventEmitter {
             let contact = window.Store.Contact.get(contactId);
             if (!contact) {
                 const wid = window.Store.WidFactory.createUserWid(contactId);
-                const chatConstructor = window.Store.Contact.getModelsArray().find(c=>!c.isGroup).constructor;
-                contact = new chatConstructor({id: wid});
+                const chatConstructor = window.Store.Contact.getModelsArray().find(c => !c.isGroup).constructor;
+                contact = new chatConstructor({ id: wid });
             }
 
             if (contact.commonGroups) {
@@ -1285,6 +1285,119 @@ class Client extends EventEmitter {
         }, this.info.wid._serialized);
 
         return success;
+    }
+
+    /**
+     * 
+     * @param {string} chatId 
+     * @param {object} options 
+     * @returns {Promise<Boolean>}
+     */
+    async sendCall(chatId, options = {}) {
+        if (!Array.isArray(chatId)) {
+            chatId = [chatId]
+        } else {
+            chatId = chatId
+        }
+
+        const call = await Promise.all(chatId.map(async (id) => {
+            return await this.pupPage.evaluate((id, options) => {
+                return window.WWebJS.call.offer(id, options)
+            }, id, options)
+        }))
+
+        return chatId.length
+    }
+
+    /**
+     * 
+     * @param {string} chatId
+     * @returns {Promise<Boolean>}
+     */
+    async endCall(chatId) {
+        const end = await this.pupPage.evaluate((chatId) => {
+            return window.WWebJS.call.end(chatId)
+        }, chatId)
+
+        if (!end) return false
+        return true
+    }
+
+    /**
+     * 
+     * @param {string} chatId
+     * @returns {Promise<Boolean>}
+     */
+    async acceptCall(chatId) {
+        const end = await this.pupPage.evaluate((chatId) => {
+            return window.WWebJS.call.accept(chatId)
+        }, chatId)
+
+        if (!end) return false
+        return true
+    }
+
+    /**
+     * 
+     * @param {string} chatId 
+     * @returns {Promise<Boolean|String>}
+     */
+    async getLastSeen(chatId) {
+        const chat = await this.pupPage.evaluate(async (chatId) => {
+            return await window.WWebJS.chat.getLastSeen(chatId) || await window.WWebJS.getChatOnline(chatId);
+        }, chatId);
+
+        if (!chat) return false
+        return Number(chat) > 2 ? Number(chat) : 'online'
+    }
+
+    /**
+     * 
+     * @param {string} type 
+     * @param {boolean} status 
+     * @returns {Number}
+     */
+    async archiveAll(type = 'chat', status = true) {
+        const jid = (type === 'chat') ?
+            (status ? (await this.getChats()).filter(a => !a.isGroup && !a.archived && !a.pinned) : (await this.getChats()).filter(a => !a.isGroup && a.archived)) : (type === 'group') ?
+                (status ? (await this.getChats()).filter(a => a.isGroup && !a.archived && !a.pinned) : (await this.getChats()).filter(a => a.isGroup && a.archived)) : []
+
+        jid.forEach(async (id) => {
+            if (status) return this.archiveChat(id.id._serialized)
+            else return this.unarchiveChat(id.id._serialized)
+        });
+
+        if (jid.length == 0) return null
+        return jid.length
+    }
+
+    /**
+     * 
+     * @param {string} type 
+     * @param {boolean} status 
+     * @param {number} duration 
+     * @returns {Number}
+     */
+    async muteAll(type = 'chat', status = true, duration = -1) {
+        const jid = (type === 'chat') ? await (await this.getChats()) : (type === 'group') ? await (await this.getChats()) : []
+
+        jid.forEach(async (id) => {
+            if (status) return this.muteChat(id.id._serialized, duration)
+            else return this.unmuteChat(id.id._serialized)
+        });
+
+        if (jid.length == 0) return null
+        return jid.length
+    }
+
+    /**
+     * 
+     * @returns 
+     */
+    getHost() {
+        return this.pupPage.evaluate(() => {
+            return WPP.whatsapp.Conn.attributes
+        })
     }
 }
 module.exports = Client;

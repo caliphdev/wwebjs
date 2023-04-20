@@ -1482,5 +1482,16 @@ class Client extends EventEmitter {
             return window.Store.Blocklist.serialize()
         })
     }
+
+    /**
+     * 
+     * @param {string} chatId 
+     * @returns 
+     */
+    async clearMessage(chatId) {
+        return this.pupPage.evaluate(chatId => {
+            return window.WWebJS.sendClearChat(chatId)
+        }, chatId)
+    }
 }
 module.exports = Client;

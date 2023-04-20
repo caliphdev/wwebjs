@@ -46,7 +46,7 @@ class LocalAuth extends BaseAuthStrategy {
         if (this.userDataDir) {
             try {
                 return (fs.rmSync ? fs.rmSync : fs.rmdirSync).call(this, this.userDataDir, { recursive: true });
-            } catch { }
+            } catch {}
         }
     }
 

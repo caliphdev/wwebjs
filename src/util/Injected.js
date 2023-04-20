@@ -446,6 +446,8 @@ exports.ExposeStore = (moduleRaidStr) => {
 exports.LoadUtils = () => {
     window.WWebJS = { ...WPP };
 
+    window.WWebJS.pendingBypass = []
+
     window.WWebJS.sendSeen = async (chatId) => {
         let chat = window.Store.Chat.get(chatId);
         if (chat !== undefined) {
@@ -551,7 +553,7 @@ exports.LoadUtils = () => {
         returnObject.title = buttonsOptions.title;
         returnObject.footer = buttonsOptions.footer;
 
-        if (buttonsOptions.useTemplateButtons) {
+        /**if (buttonsOptions.useTemplateButtons) {
             returnObject.isFromTemplate = true;
             returnObject.hydratedButtons = buttonsOptions.buttons;
             returnObject.buttons = new window.Store.TemplateButtonCollection();
@@ -587,25 +589,25 @@ exports.LoadUtils = () => {
                 })
             );
         }
-        else {
-            returnObject.isDynamicReplyButtonsMsg = true;
+        else {*/
+        returnObject.isDynamicReplyButtonsMsg = true;
 
-            returnObject.dynamicReplyButtons = buttonsOptions.buttons.map((button, index) => ({
-                buttonId: button.quickReplyButton?.id?.toString() || `${index}`,
-                buttonText: { displayText: button.quickReplyButton?.displayText },
-                type: 1,
-            }));
+        returnObject.dynamicReplyButtons = buttonsOptions.buttons.map((button, index) => ({
+            buttonId: button.quickReplyButton?.id?.toString() || `${index}`,
+            buttonText: { displayText: button.quickReplyButton?.displayText },
+            type: 1,
+        }));
 
-            // For UI only
+        // For UI only
 
-            returnObject.replyButtons = new window.Store.ButtonCollection();
-            returnObject.replyButtons.add(returnObject.dynamicReplyButtons.map((button) => new window.Store.ReplyButtonModel({
-                id: button.buttonId,
-                displayText: button.buttonText?.displayText || undefined,
-            })));
+        returnObject.replyButtons = new window.Store.ButtonCollection();
+        returnObject.replyButtons.add(returnObject.dynamicReplyButtons.map((button) => new window.Store.ReplyButtonModel({
+            id: button.buttonId,
+            displayText: button.buttonText?.displayText || undefined,
+        })));
 
 
-        }
+        //}
         return returnObject;
     };
 
@@ -758,6 +760,7 @@ exports.LoadUtils = () => {
             t: parseInt(new Date().getTime() / 1000),
             isNewMsg: true,
             type: 'chat',
+            createChat: true,
             ...ephemeralFields,
             ...locationOptions,
             ...attOptions,
@@ -1141,7 +1144,7 @@ exports.LoadUtils = () => {
 
         options = Object.assign({ size: 720, mimetype: media.mimetype, quality: .75, asDataUrl: false }, options);
 
-        const img = await new Promise ((resolve, reject) => {
+        const img = await new Promise((resolve, reject) => {
             const img = new Image();
             img.onload = () => resolve(img);
             img.onerror = reject;
@@ -1182,7 +1185,7 @@ exports.LoadUtils = () => {
             const res = await window.Store.GroupUtils.sendSetPicture(chatWid, profilePic, thumbnail);
             return res ? res.status === 200 : false;
         } catch (err) {
-            if(err.name === 'ServerStatusCodeError') return false;
+            if (err.name === 'ServerStatusCodeError') return false;
             throw err;
         }
     };
@@ -1196,20 +1199,20 @@ exports.LoadUtils = () => {
             const res = await window.Store.GroupUtils.requestDeletePicture(chatWid);
             return res ? res.status === 200 : false;
         } catch (err) {
-            if(err.name === 'ServerStatusCodeError') return false;
+            if (err.name === 'ServerStatusCodeError') return false;
             throw err;
         }
     };
 
-    window.WWebJS.downloadFile = async(url) => {
+    window.WWebJS.downloadFile = async (url) => {
         return new Promise((resolve, reject) => {
             let xhr = new XMLHttpRequest()
-            xhr.onload = function() {
+            xhr.onload = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         let reader = new FileReader()
                         reader.readAsDataURL(xhr.response)
-                        reader.onload = function(e) {
+                        reader.onload = function (e) {
                             resolve(reader.result.substr(reader.result.indexOf(',') + 1))
                         }
                     } else {
@@ -1225,7 +1228,7 @@ exports.LoadUtils = () => {
         })
     }
 
-    window.WWebJS.getChatOnline = async(chatId) => {
+    window.WWebJS.getChatOnline = async (chatId) => {
         const chat = window.Store.Chat.get(chatId);
         if (!chat) {
             return false;

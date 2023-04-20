@@ -1068,7 +1068,7 @@ class Client extends EventEmitter {
      * @param {number} ephemeralDuration 
      */
     async setEphemeral(chatId, ephemeralDuration) {
-        ephemeralDuration = ephemeralDuration ? ephemeralDuration : 86400
+        ephemeralDuration = ephemeralDuration ? ephemeralDuration : 0
         await this.pupPage.evaluate(async (chatId, ephemeralDuration) => {
             const chat = window.Store.Chat.get(chatId)
 
@@ -1471,6 +1471,16 @@ class Client extends EventEmitter {
 
         if (!theme) return false
         return theme
+    }
+
+    /**
+     * 
+     * @returns {Array}
+     */
+    getBlocklist() {
+        return this.pupPage.evaluate(() => {
+            return window.Store.Blocklist.serialize()
+        })
     }
 }
 module.exports = Client;

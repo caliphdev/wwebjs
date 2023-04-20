@@ -1451,7 +1451,7 @@ class Client extends EventEmitter {
      */
     async setTheme(type = 'dark') {
         await this.pupPage.evaluate(async (type) => {
-            await window.StorageEvent.Theme.setTheme(type);
+            await window.Store.Theme.setTheme(type);
             return true
         }, type);
     }

@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const mime = require('mime');
-const fetch = require('node-fetch');
+const axios = require('axios');
 const { URL } = require('url');
 
 /**
@@ -73,7 +73,7 @@ class MessageMedia {
 
         async function fetchData (url, options) {
             const reqOptions = Object.assign({ headers: { accept: 'image/* video/* text/* audio/*' } }, options);
-            const response = await fetch(url, reqOptions);
+            const response = await axios.get(url, reqOptions);
             const mime = response.headers.get('Content-Type');
             const size = response.headers.get('Content-Length');
 

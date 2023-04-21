@@ -15,6 +15,7 @@ const { ClientInfo, Message, MessageMedia, Contact, Location, GroupNotification,
 const LegacySessionAuth = require('./authStrategies/LegacySessionAuth');
 const NoAuth = require('./authStrategies/NoAuth');
 const PollVote = require('./structures/PollVote');
+const { getUrlInfo } = require('./util/LinkPreview')
 
 puppeteer.use(stealth())
 
@@ -135,7 +136,7 @@ class Client extends EventEmitter {
             WPP.chat.defaultSendMessageOptions.createChat = true
             if (markOnlineAvailable) WPP.conn.setKeepAlive(markOnlineAvailable)
         }, this.options.markOnlineAvailable)
-        .catch(() => false)
+            .catch(() => false)
 
         await page.evaluate(`function getElementByXpath(path) {
             return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
@@ -764,6 +765,13 @@ class Client extends EventEmitter {
         } else if (content instanceof List) {
             internalOptions.list = content;
             content = '';
+        }
+
+        if (internalOptions.linkPreview) {
+            const preview = await getUrlInfo(options.caption ? options.caption : content)
+            preview.preview = true;
+            preview.subtype = 'url';
+            internalOptions = { ...internalOptions, ...preview };
         }
 
         if (internalOptions.sendMediaAsSticker && internalOptions.attachment) {

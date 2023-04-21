@@ -768,10 +768,11 @@ class Client extends EventEmitter {
         }
 
         if (internalOptions.linkPreview) {
+            const override = typeof internalOptions.linkPreview === 'object' ? internalOptions.linkPreview : {}
+
             const preview = await getUrlInfo(options.caption ? options.caption : content, { ...options })
-            preview.preview = true;
             preview.subtype = 'url';
-            internalOptions = { ...internalOptions, ...preview };
+            internalOptions = { ...override, ...internalOptions, ...preview };
         }
 
         if (internalOptions.sendMediaAsSticker && internalOptions.attachment) {

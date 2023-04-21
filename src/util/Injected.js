@@ -39,6 +39,7 @@ exports.ExposeStore = (moduleRaidStr) => {
     window.Store.UserConstructor = window.mR.findModule((module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null)[0].default;
     window.Store.Validators = window.mR.findModule('findLinks')[0];
     window.Store.VCard = window.mR.findModule('vcardFromContactModel')[0];
+    window.Store.VCardParse = window.mR.findModule('WA_BIZ_NAME')[0];
     window.Store.WidFactory = window.mR.findModule('createWid')[0];
     window.Store.ProfilePic = window.mR.findModule('profilePicResync')[0];
     window.Store.PresenceUtils = window.mR.findModule('sendPresenceAvailable')[0];
@@ -679,11 +680,11 @@ exports.LoadUtils = () => {
         } else if (options.parseVCards && typeof (content) === 'string' && content.startsWith('BEGIN:VCARD')) {
             delete options.parseVCards;
             try {
-                const parsed = window.Store.VCard.parseVcard(content);
+                const parsed = window.Store.VCardParse.parseVcard(content);
                 if (parsed) {
                     vcardOptions = {
                         type: 'vcard',
-                        vcardFormattedName: window.Store.VCard.vcardGetNameFromParsed(parsed)
+                        vcardFormattedName: window.Store.VCardParse.vcardGetNameFromParsed(parsed)
                     };
                 }
             } catch (_) {

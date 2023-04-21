@@ -768,7 +768,7 @@ class Client extends EventEmitter {
         }
 
         if (internalOptions.linkPreview) {
-            const preview = await getUrlInfo(options.caption ? options.caption : content)
+            const preview = await getUrlInfo(options.caption ? options.caption : content, { ...options })
             preview.preview = true;
             preview.subtype = 'url';
             internalOptions = { ...internalOptions, ...preview };
@@ -988,32 +988,20 @@ class Client extends EventEmitter {
      * Enables and returns the archive state of the Chat
      * @returns {boolean}
      */
-    async archiveChat(chatId) {
-        return await this.pupPage.evaluate(async chatId => {
+    async archiveChat(chatId, status = true) {
+        return await this.pupPage.evaluate(async (chatId, status) => {
             let chat = await window.Store.Chat.get(chatId);
-            await window.Store.Cmd.archiveChat(chat, true);
-            return true;
-        }, chatId);
-    }
-
-    /**
-     * Changes and returns the archive state of the Chat
-     * @returns {boolean}
-     */
-    async unarchiveChat(chatId) {
-        return await this.pupPage.evaluate(async chatId => {
-            let chat = await window.Store.Chat.get(chatId);
-            await window.Store.Cmd.archiveChat(chat, false);
-            return false;
-        }, chatId);
+            await window.Store.Cmd.archiveChat(chat, status);
+            return status;
+        }, chatId, status);
     }
 
     /**
      * Pins the Chat
      * @returns {Promise<boolean>} New pin state. Could be false if the max number of pinned chats was reached.
      */
-    async pinChat(chatId) {
-        return this.pupPage.evaluate(async chatId => {
+    async pinChat(chatId, status = true) {
+        return this.pupPage.evaluate(async (chatId, status) => {
             let chat = window.Store.Chat.get(chatId);
             if (chat.pin) {
                 return true;
@@ -1026,24 +1014,9 @@ class Client extends EventEmitter {
                     return false;
                 }
             }
-            await window.Store.Cmd.pinChat(chat, true);
-            return true;
-        }, chatId);
-    }
-
-    /**
-     * Unpins the Chat
-     * @returns {Promise<boolean>} New pin state
-     */
-    async unpinChat(chatId) {
-        return this.pupPage.evaluate(async chatId => {
-            let chat = window.Store.Chat.get(chatId);
-            if (!chat.pin) {
-                return false;
-            }
-            await window.Store.Cmd.pinChat(chat, false);
-            return false;
-        }, chatId);
+            await window.Store.Cmd.pinChat(chat, status);
+            return status;
+        }, chatId, status);
     }
 
     /**
@@ -1057,17 +1030,6 @@ class Client extends EventEmitter {
             let chat = await window.Store.Chat.get(chatId);
             await chat.mute.mute({ expiration: timestamp, sendDevice: !0 });
         }, chatId, unmuteDate || -1);
-    }
-
-    /**
-     * Unmutes the Chat
-     * @param {string} chatId ID of the chat that will be unmuted
-     */
-    async unmuteChat(chatId) {
-        await this.pupPage.evaluate(async chatId => {
-            let chat = await window.Store.Chat.get(chatId);
-            await window.Store.Cmd.muteChat(chat, false);
-        }, chatId);
     }
 
     /**
@@ -1416,8 +1378,7 @@ class Client extends EventEmitter {
                 (status ? (await this.getChats()).filter(a => a.isGroup && !a.archived && !a.pinned) : (await this.getChats()).filter(a => a.isGroup && a.archived)) : []
 
         jid.forEach(async (id) => {
-            if (status) return this.archiveChat(id.id._serialized)
-            else return this.unarchiveChat(id.id._serialized)
+            if (status) return this.archiveChat(id.id._serialized, status)
         });
 
         if (jid.length == 0) return null
@@ -1431,12 +1392,11 @@ class Client extends EventEmitter {
      * @param {number} duration 
      * @returns {Number}
      */
-    async muteAll(type = 'chat', status = true, duration = -1) {
+    async muteAll(type = 'chat', duration = 86400) {
         const jid = (type === 'chat') ? await (await this.getChats()) : (type === 'group') ? await (await this.getChats()) : []
 
         jid.forEach(async (id) => {
             if (status) return this.muteChat(id.id._serialized, duration)
-            else return this.unmuteChat(id.id._serialized)
         });
 
         if (jid.length == 0) return null

@@ -80,6 +80,7 @@ const getUrlInfo = async (text, opts = {
         })
 
         const [image] = info.images;
+
         const linkPreview = {
             title: info.title,
             description: info.description,

@@ -120,14 +120,14 @@ class Chat extends Base {
      * Archives this chat
      */
     async archive() {
-        return this.client.archiveChat(this.id._serialized);
+        return this.client.archiveChat(this.id._serialized, true);
     }
 
     /**
      * un-archives this chat
      */
     async unarchive() {
-        return this.client.unarchiveChat(this.id._serialized);
+        return this.client.archiveChat(this.id._serialized, false);
     }
 
     /**
@@ -135,7 +135,7 @@ class Chat extends Base {
      * @returns {Promise<boolean>} New pin state. Could be false if the max number of pinned chats was reached.
      */
     async pin() {
-        return this.client.pinChat(this.id._serialized);
+        return this.client.pinChat(this.id._serialized, true);
     }
 
     /**
@@ -143,7 +143,7 @@ class Chat extends Base {
      * @returns {Promise<boolean>} New pin state
      */
     async unpin() {
-        return this.client.unpinChat(this.id._serialized);
+        return this.client.pinChat(this.id._serialized, false);
     }
 
     /**
@@ -155,10 +155,18 @@ class Chat extends Base {
     }
 
     /**
+     * temporary this chat forever, unless a date is specified
+     * @param {?Date} unmuteDate Date at which the Chat will be temporary
+     */
+    async ephemeral(ephemeralDuration) {
+        return this.client.setEphemeral(this.id._serialized, ephemeralDuration)
+    }
+
+    /**
      * Unmutes this chat
      */
     async unmute() {
-        return this.client.unmuteChat(this.id._serialized);
+        return this.client.muteChat(this.id._serialized, false);
     }
 
     /**

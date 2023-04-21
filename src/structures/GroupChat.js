@@ -83,13 +83,7 @@ class GroupChat extends Chat {
         }
 
         return await this.client.pupPage.evaluate(async (chatId, participantIds) => {
-            const chatWid = window.Store.WidFactory.createWid(chatId);
-            const chat = await window.Store.Chat.get(chatWid);
-            const participants = participantIds.map(p => {
-                return chat.groupMetadata.participants.get(p);
-            }).filter(p => Boolean(p)).map(p => typeof p == 'object' ? p.id._serialized : p);
-            await window.WWebJS.group.removeParticipants(chatId, participants);
-            return { status: 200 };
+            return await window.WWebJS.group.removeParticipants(chatId, participantIds)
         }, this.id._serialized, participantIds);
     }
 
@@ -106,13 +100,7 @@ class GroupChat extends Chat {
         }
 
         return await this.client.pupPage.evaluate(async (chatId, participantIds) => {
-            const chatWid = window.Store.WidFactory.createWid(chatId);
-            const chat = await window.Store.Chat.get(chatWid);
-            const participants = participantIds.map(p => {
-                return chat.groupMetadata.participants.get(p);
-            }).filter(p => Boolean(p)).map(p => typeof p == 'object' ? p.id._serialized : p);
-            await window.WWebJS.group.promoteParticipants(chatId, participants);
-            return { status: 200 };
+            return await window.WWebJS.group.promoteParticipants(chatId, participantIds)
         }, this.id._serialized, participantIds);
     }
 
@@ -129,13 +117,7 @@ class GroupChat extends Chat {
         }
         
         return await this.client.pupPage.evaluate(async (chatId, participantIds) => {
-            const chatWid = window.Store.WidFactory.createWid(chatId);
-            const chat = await window.Store.Chat.get(chatWid);
-            const participants = participantIds.map(p => {
-                return chat.groupMetadata.participants.get(p);
-            }).filter(p => Boolean(p)).map(p => typeof p == 'object' ? p.id._serialized : p);
-            await window.WWebJS.group.demoteParticipants(chatId, participants);
-            return { status: 200 };
+            return await window.WWebJS.group.demoteParticipants(chatId, participantIds)
         }, this.id._serialized, participantIds);
     }
 

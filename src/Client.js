@@ -988,20 +988,32 @@ class Client extends EventEmitter {
      * Enables and returns the archive state of the Chat
      * @returns {boolean}
      */
-    async archiveChat(chatId, status = true) {
-        return await this.pupPage.evaluate(async (chatId, status) => {
+    async archiveChat(chatId) {
+        return await this.pupPage.evaluate(async chatId => {
             let chat = await window.Store.Chat.get(chatId);
-            await window.Store.Cmd.archiveChat(chat, status);
-            return status;
-        }, chatId, status);
+            await window.Store.Cmd.archiveChat(chat, true);
+            return true;
+        }, chatId);
+    }
+
+    /**
+     * Changes and returns the archive state of the Chat
+     * @returns {boolean}
+     */
+    async unarchiveChat(chatId) {
+        return await this.pupPage.evaluate(async chatId => {
+            let chat = await window.Store.Chat.get(chatId);
+            await window.Store.Cmd.archiveChat(chat, false);
+            return false;
+        }, chatId);
     }
 
     /**
      * Pins the Chat
      * @returns {Promise<boolean>} New pin state. Could be false if the max number of pinned chats was reached.
      */
-    async pinChat(chatId, status = true) {
-        return this.pupPage.evaluate(async (chatId, status) => {
+    async pinChat(chatId) {
+        return this.pupPage.evaluate(async chatId => {
             let chat = window.Store.Chat.get(chatId);
             if (chat.pin) {
                 return true;
@@ -1014,9 +1026,24 @@ class Client extends EventEmitter {
                     return false;
                 }
             }
-            await window.Store.Cmd.pinChat(chat, status);
-            return status;
-        }, chatId, status);
+            await window.Store.Cmd.pinChat(chat, true);
+            return true;
+        }, chatId);
+    }
+
+    /**
+     * Unpins the Chat
+     * @returns {Promise<boolean>} New pin state
+     */
+    async unpinChat(chatId) {
+        return this.pupPage.evaluate(async chatId => {
+            let chat = window.Store.Chat.get(chatId);
+            if (!chat.pin) {
+                return false;
+            }
+            await window.Store.Cmd.pinChat(chat, false);
+            return false;
+        }, chatId);
     }
 
     /**
@@ -1025,11 +1052,22 @@ class Client extends EventEmitter {
      * @param {?Date} unmuteDate Date when the chat will be unmuted, leave as is to mute forever
      */
     async muteChat(chatId, unmuteDate) {
-        unmuteDate = unmuteDate ? unmuteDate : -1;
+        unmuteDate = unmuteDate ? unmuteDate.getTime() / 1000 : -1;
         await this.pupPage.evaluate(async (chatId, timestamp) => {
             let chat = await window.Store.Chat.get(chatId);
-            await chat.mute.mute({ expiration: timestamp, sendDevice: !0 });
+            await chat.mute.mute({expiration: timestamp, sendDevice:!0});
         }, chatId, unmuteDate || -1);
+    }
+
+    /**
+     * Unmutes the Chat
+     * @param {string} chatId ID of the chat that will be unmuted
+     */
+    async unmuteChat(chatId) {
+        await this.pupPage.evaluate(async chatId => {
+            let chat = await window.Store.Chat.get(chatId);
+            await window.Store.Cmd.muteChat(chat, false);
+        }, chatId);
     }
 
     /**

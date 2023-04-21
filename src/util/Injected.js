@@ -1049,7 +1049,7 @@ exports.LoadUtils = () => {
         return false;
     };
 
-    window.WWebJS.sendChatstate = async (state, chatId) => {
+    window.WWebJS.sendChatstate = async (chatId, state) => {
         if (window.Store.MDBackend) {
             chatId = window.Store.WidFactory.createWid(chatId);
         }

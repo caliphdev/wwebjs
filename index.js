@@ -1,35 +1,30 @@
 'use strict';
 
-const Constants = require('./src/util/Constants');
+export { default as Client } from './src/Client.js';
 
-module.exports = {
-    Client: require('./src/Client'),
-    
-    version: require('./package.json').version,
+// Structures
+export { 
+    Chat, 
+    PrivateChat, 
+    GroupChat, 
+    Message, 
+    MessageMedia, 
+    Contact, 
+    PrivateContact, 
+    BusinessContact, 
+    ClientInfo, 
+    Location, 
+    ProductMetadata, 
+    List, 
+    Buttons, 
+    PollVote, 
+    Call
+} from './src/structures/index.js';
 
-    // Structures
-    Chat: require('./src/structures/Chat'),
-    PrivateChat: require('./src/structures/PrivateChat'),
-    GroupChat: require('./src/structures/GroupChat'),
-    Message: require('./src/structures/Message'),
-    MessageMedia: require('./src/structures/MessageMedia'),
-    Contact: require('./src/structures/Contact'),
-    PrivateContact: require('./src/structures/PrivateContact'),
-    BusinessContact: require('./src/structures/BusinessContact'),
-    ClientInfo: require('./src/structures/ClientInfo'),
-    Location: require('./src/structures/Location'),
-    ProductMetadata: require('./src/structures/ProductMetadata'),
-    List: require('./src/structures/List'),
-    Buttons: require('./src/structures/Buttons'),
-    PollVote: require('./src/structures/PollVote'),
-    Call: require('./src/structures/Call'),
+// Auth Strategies
+export { default as NoAuth } from './src/authStrategies/NoAuth.js'
+export { default as LocalAuth } from './src/authStrategies/LocalAuth.js'
+export { default as RemoteAuth } from './src/authStrategies/RemoteAuth.js'
+export { default as LegacySessionAuth } from './src/authStrategies/LegacySessionAuth.js'
 
-    
-    // Auth Strategies
-    NoAuth: require('./src/authStrategies/NoAuth'),
-    LocalAuth: require('./src/authStrategies/LocalAuth'),
-    RemoteAuth: require('./src/authStrategies/RemoteAuth'),
-    LegacySessionAuth: require('./src/authStrategies/LegacySessionAuth'),
-
-    ...Constants
-};
+export * from './src/util/Constants.js';

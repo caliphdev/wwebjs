@@ -1,6 +1,6 @@
 'use strict';
 
-const Base = require('./Base');
+import Base from './Base.js';
 
 /**
  * Current connection information
@@ -68,4 +68,4 @@ class ClientInfo extends Base {
     }
 }
 
-module.exports = ClientInfo;
+export default ClientInfo;

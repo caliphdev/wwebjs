@@ -1,4 +1,4 @@
-const { Client, Location, List, Buttons, LocalAuth} = require('./index');
+import { Client, Location, List, Buttons, LocalAuth } from './index.js'
 
 const client = new Client({
     authStrategy: new LocalAuth(),
@@ -167,10 +167,10 @@ client.on('message', async msg => {
         await chat.archive();
     } else if (msg.body === '!mute') {
         const chat = await msg.getChat();
-        // mute the chat for 20 seconds
-        const unmuteDate = new Date();
-        unmuteDate.setSeconds(unmuteDate.getSeconds() + 20);
-        await chat.mute(unmuteDate);
+        await chat.mute(86400);
+    } else if (msg.body === 'ephemeral') {
+        const chat = await msg.getChat()
+        await chat.ephemeral(86400)
     } else if (msg.body === '!typing') {
         const chat = await msg.getChat();
         // simulates typing in the chat
@@ -189,11 +189,11 @@ client.on('message', async msg => {
             client.interface.openChatWindowAt(quotedMsg.id._serialized);
         }
     } else if (msg.body === '!buttons') {
-        let button = new Buttons('Button body',[{body:'bt1'},{body:'bt2'},{body:'bt3'}],'title','footer');
+        let button = new Buttons('Button body', [{ body: 'bt1' }, { body: 'bt2' }, { body: 'bt3' }], 'title', 'footer');
         client.sendMessage(msg.from, button);
     } else if (msg.body === '!list') {
-        let sections = [{title:'sectionTitle',rows:[{title:'ListItem1', description: 'desc'},{title:'ListItem2'}]}];
-        let list = new List('List body','btnText',sections,'Title','footer');
+        let sections = [{ title: 'sectionTitle', rows: [{ title: 'ListItem1', description: 'desc' }, { title: 'ListItem2' }] }];
+        let list = new List('List body', 'btnText', sections, 'Title', 'footer');
         client.sendMessage(msg.from, list);
     } else if (msg.body === '!reaction') {
         msg.react('👍');
@@ -231,7 +231,7 @@ client.on('message_ack', (msg, ack) => {
         ACK_PLAYED: 4
     */
 
-    if(ack == 3) {
+    if (ack == 3) {
         // The message was read
     }
 });
@@ -254,7 +254,7 @@ client.on('group_update', (notification) => {
 });
 
 client.on('change_state', state => {
-    console.log('CHANGE STATE', state );
+    console.log('CHANGE STATE', state);
 });
 
 // Change to false if you don't want to reject incoming calls
@@ -269,4 +269,3 @@ client.on('call', async (call) => {
 client.on('disconnected', (reason) => {
     console.log('Client was logged out', reason);
 });
-

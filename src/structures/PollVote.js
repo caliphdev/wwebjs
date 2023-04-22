@@ -1,7 +1,7 @@
 'use strict';
 
-const Message = require('./Message');
-const Base = require('./Base');
+import Message from './Message.js';
+import Base from './Base.js';
 
 /**
  * Represents a Poll Vote on WhatsApp
@@ -33,4 +33,4 @@ class PollVote extends Base {
     }
 }
 
-module.exports = PollVote;
+export default PollVote;

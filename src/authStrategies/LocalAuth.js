@@ -1,8 +1,8 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-const BaseAuthStrategy = require('./BaseAuthStrategy');
+import path from 'path';
+import fs from 'fs';
+import BaseAuthStrategy from './BaseAuthStrategy.js';
 
 /**
  * Local directory-based authentication
@@ -52,4 +52,4 @@ class LocalAuth extends BaseAuthStrategy {
 
 }
 
-module.exports = LocalAuth;
+export default LocalAuth;

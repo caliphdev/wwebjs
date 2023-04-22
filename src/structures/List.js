@@ -1,6 +1,6 @@
 'use strict';
 
-const Util = require('../util/Util');
+import Util from '../util/Util.js';
 
 /**
  * Section spec used in List constructor
@@ -103,4 +103,4 @@ class List {
     
 }
 
-module.exports = List;
+export default List;

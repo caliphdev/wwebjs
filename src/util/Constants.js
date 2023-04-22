@@ -1,8 +1,8 @@
 'use strict';
 
-exports.WhatsWebURL = 'https://web.whatsapp.com/';
+export const WhatsWebURL = 'https://web.whatsapp.com/';
 
-exports.DefaultOptions = {
+export const DefaultOptions = {
     puppeteer: {
         headless: true,
         defaultViewport: null
@@ -22,7 +22,7 @@ exports.DefaultOptions = {
  * @readonly
  * @enum {number}
  */
-exports.Status = {
+export const Status = {
     INITIALIZING: 0,
     AUTHENTICATING: 1,
     READY: 3
@@ -33,7 +33,7 @@ exports.Status = {
  * @readonly
  * @enum {string}
  */
-exports.Events = {
+export const Events = {
     AUTHENTICATED: 'authenticated',
     AUTHENTICATION_FAILURE: 'auth_failure',
     READY: 'ready',
@@ -65,7 +65,7 @@ exports.Events = {
  * @readonly
  * @enum {string}
  */
-exports.MessageTypes = {
+export const MessageTypes = {
     TEXT: 'chat',
     AUDIO: 'audio',
     VOICE: 'ptt',
@@ -110,7 +110,7 @@ exports.MessageTypes = {
  * @readonly
  * @enum {string}
  */
-exports.GroupNotificationTypes = {
+export const GroupNotificationTypes = {
     ADD: 'add',
     INVITE: 'invite',
     REMOVE: 'remove',
@@ -127,7 +127,7 @@ exports.GroupNotificationTypes = {
  * @readonly
  * @enum {string}
  */
-exports.ChatTypes = {
+export const ChatTypes = {
     SOLO: 'solo',
     GROUP: 'group',
     UNKNOWN: 'unknown'
@@ -138,7 +138,7 @@ exports.ChatTypes = {
  * @readonly
  * @enum {string}
  */
-exports.WAState = {
+export const WAState = {
     CONFLICT: 'CONFLICT',
     CONNECTED: 'CONNECTED',
     DEPRECATED_VERSION: 'DEPRECATED_VERSION',
@@ -158,7 +158,7 @@ exports.WAState = {
  * @readonly
  * @enum {number}
  */
-exports.MessageAck = {
+export const MessageAck = {
     ACK_ERROR: -1,
     ACK_PENDING: 0,
     ACK_SERVER: 1,

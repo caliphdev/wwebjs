@@ -2,18 +2,18 @@
 
 /* Require Optional Dependencies */
 try {
-    var fs = require('fs-extra');
-    var unzipper = require('unzipper');
-    var archiver = require('archiver');
+    var fs = (await import('fs-extra'));
+    var unzipper = (await import('unzipper'));
+    var archiver = (await import('archiver'));
 } catch {
     fs = undefined;
     unzipper = undefined;
     archiver = undefined;
 }
 
-const path = require('path');
-const { Events } = require('./../util/Constants');
-const BaseAuthStrategy = require('./BaseAuthStrategy');
+import path from 'path';
+import { Events } from '../util/Constants.js';
+import BaseAuthStrategy from './BaseAuthStrategy.js';
 
 /**
  * Remote-based authentication
@@ -201,4 +201,4 @@ class RemoteAuth extends BaseAuthStrategy {
     }
 }
 
-module.exports = RemoteAuth;
+export default RemoteAuth;

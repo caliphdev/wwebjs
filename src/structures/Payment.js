@@ -1,4 +1,4 @@
-const Base = require('./Base');
+import Base from './Base.js'
 
 class Payment extends Base {
     constructor(client, data) {
@@ -73,7 +73,6 @@ class Payment extends Base {
 
         return super._patch(data);
     }
-
 }
 
-module.exports = Payment;
+export default Payment;

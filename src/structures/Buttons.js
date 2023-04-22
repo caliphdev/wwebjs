@@ -1,6 +1,6 @@
 'use strict';
 
-const MessageMedia = require('./MessageMedia');
+import MessageMedia from "./MessageMedia.js";
 
 /**
  * Button spec used in Buttons constructor
@@ -117,4 +117,4 @@ class Buttons {
     
 }
 
-module.exports = Buttons;
+export default Buttons;

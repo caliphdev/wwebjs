@@ -1,6 +1,6 @@
 'use strict';
 
-const Chat = require('./Chat');
+import Chat from './Chat.js';
 
 /**
  * Group participant information
@@ -300,4 +300,4 @@ class GroupChat extends Chat {
 
 }
 
-module.exports = GroupChat;
+export default GroupChat

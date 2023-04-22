@@ -1,6 +1,6 @@
 'use strict';
 
-const BaseAuthStrategy = require('./BaseAuthStrategy');
+import BaseAuthStrategy from './BaseAuthStrategy.js'
 
 /**
  * Legacy session auth strategy
@@ -69,4 +69,4 @@ class LegacySessionAuth extends BaseAuthStrategy {
     }
 }
 
-module.exports = LegacySessionAuth;
+export default LegacySessionAuth;

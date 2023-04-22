@@ -103,11 +103,16 @@ declare namespace WAWebJS {
         getNumberId(number: string): Promise<ContactId | null>
 
         /**
-         * Mutes this chat forever, unless a date is specified
          * @param chatId ID of the chat that will be muted
-         * @param unmuteDate Date when the chat will be unmuted, leave as is to mute forever
+         * @param unmuteDate number, in the form of seconds for the duration of the muted chat
          */
-        muteChat(chatId: string, unmuteDate?: Date): Promise<void>
+        muteChat(chatId: string, unmuteDate?: number): Promise<void>
+
+         /**
+         * @param chatId ID of the chat that will be muted
+         * @param ephemeralDuration number, in the form of seconds for the duration of the temporary message in chat
+         */
+        setEphemeral(chatId: string, ephemeralDuration?: number): Promise<void>
 
         /** Force reset of connection state for the client */
         resetState(): Promise<void>
@@ -153,7 +158,7 @@ declare namespace WAWebJS {
 
         /** Deletes the current user's profile picture */
         deleteProfilePicture(): Promise<boolean>
-
+        
         /** Generic event */
         on(event: string, listener: (...args: any) => void): this
 

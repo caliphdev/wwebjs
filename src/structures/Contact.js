@@ -1,6 +1,6 @@
 'use strict';
 
-const Base = require('./Base');
+import Base from './Base.js';
 
 /**
  * ID that represents a contact
@@ -203,4 +203,4 @@ class Contact extends Base {
     
 }
 
-module.exports = Contact;
+export default Contact;

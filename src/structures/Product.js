@@ -1,7 +1,7 @@
 'use strict';
 
-const Base = require('./Base');
-const ProductMetadata = require('./ProductMetadata');
+import Base from './Base.js';
+import ProductMetadata from './ProductMetadata.js';
 
 /**
  * Represents a Product on WhatsAppBusiness
@@ -65,4 +65,4 @@ class Product extends Base {
     }
 }
 
-module.exports = Product;
+export default Product;

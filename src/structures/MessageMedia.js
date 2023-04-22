@@ -1,10 +1,10 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const mime = require('mime');
-const axios = require('axios');
-const { URL } = require('url');
+import fs from 'fs';
+import path from 'path';
+import mime from 'mime';
+import axios from 'axios';
+import { URL } from 'url';
 
 /**
  * Media attached to a message
@@ -108,4 +108,4 @@ class MessageMedia {
     }
 }
 
-module.exports = MessageMedia;
+export default MessageMedia;

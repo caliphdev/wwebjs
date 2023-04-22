@@ -1,12 +1,12 @@
 'use strict';
 
-const path = require('path');
-const Crypto = require('crypto');
-const { tmpdir, type } = require('os');
-const ffmpeg = require('fluent-ffmpeg');
-const webp = require('node-webpmux');
-const sharp = require('sharp')
-const fs = require('fs').promises;
+import path from 'path';
+import Crypto from "crypto";
+import { tmpdir } from 'os';
+import ffmpeg from 'fluent-ffmpeg';
+import webp from 'node-webpmux';
+import sharp from 'sharp';
+import fs from 'fs/promises';
 const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 
 /**
@@ -244,4 +244,4 @@ class Util {
     }
 }
 
-module.exports = Util;
+export default Util

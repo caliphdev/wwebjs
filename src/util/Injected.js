@@ -1,7 +1,7 @@
 'use strict';
 
 // Exposes the internal Store to the WhatsApp Web client
-exports.ExposeStore = (moduleRaidStr) => {
+export const ExposeStore = (moduleRaidStr) => {
     eval('var moduleRaid = ' + moduleRaidStr);
     // eslint-disable-next-line no-undef
     window.mR = moduleRaid();
@@ -444,7 +444,7 @@ exports.ExposeStore = (moduleRaidStr) => {
     }
 };
 
-exports.LoadUtils = () => {
+export const LoadUtils = () => {
     window.WWebJS = { ...WPP };
 
     window.WWebJS.pendingBypass = []

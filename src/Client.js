@@ -1,22 +1,23 @@
 'use strict';
 
-const EventEmitter = require('events');
-const { default: puppeteer } = require('puppeteer-extra');
-const stealth = require('puppeteer-extra-plugin-stealth');
-const moduleRaid = require('@pedroslopez/moduleraid/moduleraid');
+import EventEmitter from 'events';
+import puppeteer from 'puppeteer-extra';
+import stealth from 'puppeteer-extra-plugin-stealth';
+import moduleRaid from '@pedroslopez/moduleraid/moduleraid.js';
+import { createRequire } from 'module';
 
-const Util = require('./util/Util');
-const InterfaceController = require('./util/InterfaceController');
-const { WhatsWebURL, DefaultOptions, Events, WAState } = require('./util/Constants');
-const { ExposeStore, LoadUtils } = require('./util/Injected');
-const ChatFactory = require('./factories/ChatFactory');
-const ContactFactory = require('./factories/ContactFactory');
-const { ClientInfo, Message, MessageMedia, Contact, Location, GroupNotification, Label, Call, Buttons, List, Reaction } = require('./structures');
-const LegacySessionAuth = require('./authStrategies/LegacySessionAuth');
-const NoAuth = require('./authStrategies/NoAuth');
-const PollVote = require('./structures/PollVote');
-const { getUrlInfo } = require('./util/LinkPreview')
+import Util from './util/Util.js';
+import InterfaceController from './util/InterfaceController.js';
+import { WhatsWebURL, DefaultOptions, Events, WAState } from './util/Constants.js';
+import { ExposeStore, LoadUtils } from './util/Injected.js';
+import ChatFactory from './factories/ChatFactory.js';
+import ContactFactory from './factories/ContactFactory.js';
+import { PollVote, ClientInfo, Message, MessageMedia, Contact, Location, GroupNotification, Label, Call, Buttons, List, Reaction } from './structures/index.js';
+import LegacySessionAuth from './authStrategies/LegacySessionAuth.js';
+import NoAuth from './authStrategies/NoAuth.js';
+import { getUrlInfo } from './util/LinkPreview.js'
 
+const require = createRequire(import.meta.url)
 puppeteer.use(stealth())
 
 /**
@@ -734,7 +735,7 @@ class Client extends EventEmitter {
             sendMediaAsSticker: options.sendMediaAsSticker,
             sendMediaAsDocument: options.sendMediaAsDocument,
             caption: options.caption,
-            quotedMessageId: options.quotedMessageId,
+            quotedMessageId: options.quoted?.id ? (options.quoted._serialized || options.quoted.id._serialized) : options.quoted,
             parseVCards: options.parseVCards === false ? false : true,
             mentionedJidList: Array.isArray(options.mentions) ? options.mentions.map(contact => contact.id._serialized) : [],
             extraOptions: options.extra
@@ -1491,4 +1492,5 @@ class Client extends EventEmitter {
         }, chatId)
     }
 }
-module.exports = Client;
+
+export default Client;

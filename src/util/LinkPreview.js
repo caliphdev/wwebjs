@@ -1,7 +1,7 @@
-const sharp = require('sharp');
-const { getLinkPreview } = require('link-preview-js');
-const axios = require('axios');
-const stream = require('stream')
+import sharp from 'sharp';
+import { getLinkPreview } from 'link-preview-js';
+import axios from 'axios';
+import stream from 'stream';
 const THUMBNAIL_WIDTH_PX = 192;
 
 
@@ -45,7 +45,7 @@ const getCompressedJpegThumbnail = async (url, { thumbnailWidth, fetchOpts }) =>
     return result;
 }
 
-const getUrlInfo = async (text, opts = {
+export const getUrlInfo = async (text, opts = {
     thumbnailWidth: THUMBNAIL_WIDTH_PX,
     fetchOpts: { timeout: 3000 }
 }) => {
@@ -97,4 +97,3 @@ const getUrlInfo = async (text, opts = {
         }
     }
 }
-exports.getUrlInfo = getUrlInfo

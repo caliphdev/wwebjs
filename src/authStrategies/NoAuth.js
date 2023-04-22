@@ -1,12 +1,10 @@
 'use strict';
 
-const BaseAuthStrategy = require('./BaseAuthStrategy');
-
+import BaseAuthStrategy from './BaseAuthStrategy.js';
 /**
  * No session restoring functionality
  * Will need to authenticate via QR code every time
 */
 class NoAuth extends BaseAuthStrategy { }
 
-
-module.exports = NoAuth;
+export default NoAuth;

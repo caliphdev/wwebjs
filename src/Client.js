@@ -15,7 +15,6 @@ import ContactFactory from './factories/ContactFactory.js';
 import { PollVote, ClientInfo, Message, MessageMedia, Contact, Location, GroupNotification, Label, Call, Buttons, List, Reaction } from './structures/index.js';
 import LegacySessionAuth from './authStrategies/LegacySessionAuth.js';
 import NoAuth from './authStrategies/NoAuth.js';
-import { getUrlInfo } from './util/LinkPreview.js'
 
 const require = createRequire(import.meta.url)
 puppeteer.use(stealth())
@@ -729,7 +728,7 @@ class Client extends EventEmitter {
      */
     async sendMessage(chatId, content, options = {}) {
         let internalOptions = {
-            linkPreview: options.linkPreview === false ? undefined : true,
+            linkPreview: options.linkPreview,
             sendAudioAsVoice: options.sendAudioAsVoice,
             sendVideoAsGif: options.sendVideoAsGif,
             sendMediaAsSticker: options.sendMediaAsSticker,
@@ -766,14 +765,6 @@ class Client extends EventEmitter {
         } else if (content instanceof List) {
             internalOptions.list = content;
             content = '';
-        }
-
-        if (internalOptions.linkPreview) {
-            const override = typeof internalOptions.linkPreview === 'object' ? internalOptions.linkPreview : {}
-
-            const preview = await getUrlInfo(options.caption ? options.caption : content, { ...options })
-            preview.subtype = 'url';
-            internalOptions = { ...override, ...internalOptions, ...preview };
         }
 
         if (internalOptions.sendMediaAsSticker && internalOptions.attachment) {

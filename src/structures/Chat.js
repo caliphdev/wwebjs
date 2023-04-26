@@ -191,7 +191,7 @@ class Chat extends Base {
      * @returns {Promise<Array<Message>>}
      */
     async fetchMessages(searchOptions) {
-        let messages = await this.client.pupPage.evaluate(async (chatId, searchOptions) => {
+        let messages = await this.client.pupPage.evaluate(async ({ chatId, searchOptions }) => {
             const msgFilter = (m) => {
                 if (m.isNotification) {
                     return false; // dont include notification messages
@@ -220,7 +220,7 @@ class Chat extends Base {
 
             return msgs.map(m => window.WWebJS.getMessageModel(m));
 
-        }, this.id._serialized, searchOptions);
+        }, { chatId: this.id._serialized, searchOptions });
 
         return messages.map(m => new Message(this.client, m));
     }

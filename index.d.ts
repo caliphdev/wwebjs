@@ -1,7 +1,7 @@
 
 import { EventEmitter } from 'events'
 import { RequestInit } from 'node-fetch'
-import * as puppeteer from 'puppeteer'
+import * as playwright from 'playwright'
 
 declare namespace WAWebJS {
 
@@ -11,11 +11,11 @@ declare namespace WAWebJS {
         /** Current connection information */
         public info: ClientInfo
 
-        /** Puppeteer page running WhatsApp Web */
-        pupPage?: puppeteer.Page
+        /** playwright page running WhatsApp Web */
+        pupPage?: playwright.Page
 
-        /** Puppeteer browser running WhatsApp Web */
-        pupBrowser?: puppeteer.Browser
+        /** playwright browser running WhatsApp Web */
+        pupBrowser?: playwright.Browser
 
         /**Accepts an invitation to join a group */
         acceptInvite(inviteCode: string): Promise<string>
@@ -363,11 +363,11 @@ declare namespace WAWebJS {
 
     /** Options for initializing the whatsapp client */
     export interface ClientOptions {
-        /** Timeout for authentication selector in puppeteer
+        /** Timeout for authentication selector in playwright
          * @default 0 */
         authTimeoutMs?: number,
-        /** Puppeteer launch options. View docs here: https://github.com/puppeteer/puppeteer/ */
-        puppeteer?: puppeteer.PuppeteerNodeLaunchOptions & puppeteer.ConnectOptions
+        /** playwright launch options. View docs here: https://github.com/microsoft/playwright/ */
+        playwright?: playwright.LaunchOptions & playwright.ConnectOptions
 		/** Determines how to save and restore sessions. Will use LegacySessionAuth if options.session is set. Otherwise, NoAuth will be used. */
         authStrategy?: AuthStrategy,
         /** How many times should the qrcode be refreshed before giving up
@@ -387,7 +387,7 @@ declare namespace WAWebJS {
         /** How much time to wait before taking over the session
          * @default 0 */
         takeoverTimeoutMs?: number,
-        /** User agent to use in puppeteer.
+        /** User agent to use in playwright.
          * @default 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36' */
         userAgent?: string
         /** Ffmpeg path to use when formating videos to webp while sending stickers 

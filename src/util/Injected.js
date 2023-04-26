@@ -693,18 +693,25 @@ export const LoadUtils = () => {
         }
 
         if (options.linkPreview) {
-            delete options.linkPreview;
+            const ovverride = typeof options.linkPreview === 'object' ? options.linkPreview : {}
 
-            // Not supported yet by WhatsApp Web on MD
-            if (!window.Store.MDBackend) {
-                const link = window.Store.Validators.findLink(content);
-                if (link) {
-                    const preview = await window.WWebJS.whatsapp.functions.fetchLinkPreview(link.url);
-                    preview.preview = true;
-                    preview.subtype = 'url';
-                    options = { ...options, ...preview };
+            const link = window.Store.Validators.findLink(content);
+            if (link) {
+                const preview = await window.WWebJS.whatsapp.functions.fetchLinkPreview(link.url);
+                preview.preview = true;
+                preview.subtype = 'url';
+                options = { ...options, ...preview.data, ...ovverride };
+            }
+
+            if (typeof options.linkPreview === 'object') {
+                options.subtype = 'url'
+                options = {
+                    ...options,
+                    ...options.linkPreview
                 }
             }
+
+            delete options.linkPreview
         }
 
         let buttonOptions = {};

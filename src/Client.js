@@ -1,10 +1,10 @@
 'use strict';
 
 import EventEmitter from 'events';
-import puppeteer from 'puppeteer-extra';
-import stealth from 'puppeteer-extra-plugin-stealth';
+import playwright from 'playwright-chromium'
 import moduleRaid from '@pedroslopez/moduleraid/moduleraid.js';
 import { createRequire } from 'module';
+
 
 import Util from './util/Util.js';
 import InterfaceController from './util/InterfaceController.js';
@@ -15,10 +15,10 @@ import ContactFactory from './factories/ContactFactory.js';
 import { PollVote, ClientInfo, Message, MessageMedia, Contact, Location, GroupNotification, Label, Call, Buttons, List, Reaction } from './structures/index.js';
 import LegacySessionAuth from './authStrategies/LegacySessionAuth.js';
 import NoAuth from './authStrategies/NoAuth.js';
-import { getUrlInfo } from './util/LinkPreview.js'
+
 
 const require = createRequire(import.meta.url)
-puppeteer.use(stealth())
+
 
 /**
  * Starting point for interacting with the WhatsApp Web API
@@ -91,30 +91,33 @@ class Client extends EventEmitter {
      * Sets up events and requirements, kicks off authentication request
      */
     async initialize() {
-        let [browser, page] = [null, null];
+        let [browser, context, page] = [null, null];
 
         await this.authStrategy.beforeBrowserInitialized();
 
-        const puppeteerOpts = this.options.puppeteer;
-        if (puppeteerOpts && puppeteerOpts.browserWSEndpoint) {
-            browser = await puppeteer.connect(puppeteerOpts);
-            page = await browser.newPage();
+        const playwrightOpts = this.options.playwright;
+        if (playwrightOpts && playwrightOpts.wsEndpoint) {
+            browser = await playwright.chromium.connect(playwrightOpts.wsEndpoint, { timeout: 0, ...playwrightOpts });
+            page = await context.newPage();
         } else {
-            const browserArgs = [...(puppeteerOpts.args || [])];
+            const browserArgs = [...(playwrightOpts.args || [])];
             if (!browserArgs.find(arg => arg.includes('--user-agent'))) {
                 browserArgs.push(`--user-agent=${this.options.userAgent}`);
             }
 
-            browser = await puppeteer.launch({ ...puppeteerOpts, args: browserArgs });
+            browser = await playwright.chromium.launchPersistentContext(playwrightOpts.userDataDir, {
+                ...playwrightOpts, 
+                args: browserArgs,
+                timeout: 0
+            });
             page = (await browser.pages())[0];
         }
 
-        if (this.options.proxyAuthentication !== undefined) {
-            await page.authenticate(this.options.proxyAuthentication);
+        if (this.options.userAgent) {
+            await page.setExtraHTTPHeaders({
+                'User-Agent': this.options.userAgent
+            })
         }
-
-        await page.setUserAgent(this.options.userAgent);
-        if (this.options.bypassCSP) await page.setBypassCSP(true);
 
         this.pupBrowser = browser;
         this.pupPage = page;
@@ -122,7 +125,7 @@ class Client extends EventEmitter {
         await this.authStrategy.afterBrowserInitialized();
 
         await page.goto(WhatsWebURL, {
-            waitUntil: 'domcontentloaded',
+            waituntil: 'domcontentloaded',
             timeout: 0,
             referer: 'https://whatsapp.com/'
         });
@@ -301,11 +304,10 @@ class Client extends EventEmitter {
         await page.waitForFunction(() => {
             return (
                 typeof window.WWebJS !== 'undefined' &&
-                typeof window.Store !== 'undefined' &&
-                window.WPP.isReady
+                typeof window.Store !== 'undefined'
             )
         })
-            .catch(() => false);
+        .catch(() => false);
 
         await page.evaluate(async () => {
             // safely unregister service workers
@@ -768,14 +770,6 @@ class Client extends EventEmitter {
             content = '';
         }
 
-        if (internalOptions.linkPreview) {
-            const override = typeof internalOptions.linkPreview === 'object' ? internalOptions.linkPreview : {}
-
-            const preview = await getUrlInfo(options.caption ? options.caption : content, { ...options })
-            preview.subtype = 'url';
-            internalOptions = { ...override, ...internalOptions, ...preview };
-        }
-
         if (internalOptions.sendMediaAsSticker && internalOptions.attachment) {
             internalOptions.attachment = await Util.formatToWebpSticker(
                 internalOptions.attachment, {
@@ -786,7 +780,7 @@ class Client extends EventEmitter {
             );
         }
 
-        const newMessage = await this.pupPage.evaluate(async (chatId, message, options, sendSeen) => {
+        const newMessage = await this.pupPage.evaluate(async ({ chatId, message, options, sendSeen }) => {
             const chatWid = window.Store.WidFactory.createWid(chatId);
             const chat = await window.Store.Chat.find(chatWid);
 
@@ -797,7 +791,7 @@ class Client extends EventEmitter {
 
             const msg = await window.WWebJS.sendMessage(chat, message, options, sendSeen);
             return JSON.parse(JSON.stringify(msg));
-        }, chatId, content, internalOptions, sendSeen);
+        }, { chatId, message: content, options: internalOptions, sendSeen });
 
         return new Message(this, newMessage);
     }
@@ -812,10 +806,10 @@ class Client extends EventEmitter {
      * @returns {Promise<Message[]>}
      */
     async searchMessages(query, options = {}) {
-        const messages = await this.pupPage.evaluate(async (query, page, count, remote) => {
+        const messages = await this.pupPage.evaluate(async ({ query, page, count, remote }) => {
             const { messages } = await window.Store.Msg.search(query, page, count, remote);
             return messages.map(msg => window.WWebJS.getMessageModel(msg));
-        }, query, options.page, options.limit, options.chatId);
+        }, { query, page: options.page, limit: options.limit, remote: options.chatId });
 
         return messages.map(msg => new Message(this, msg));
     }

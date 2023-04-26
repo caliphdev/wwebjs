@@ -343,12 +343,12 @@ class Message extends Base {
      * @return {Promise}
      */
     async react(reaction){
-        await this.client.pupPage.evaluate(async (messageId, reaction) => {
+        await this.client.pupPage.evaluate(async ({ messageId, reaction }) => {
             if (!messageId) { return undefined; }
             
             const msg = await window.Store.Msg.get(messageId);
             await window.Store.sendReactionToMsg(msg, reaction);
-        }, this.id._serialized, reaction);
+        }, { messageId: this.id._serialized, reaction });
     }
 
     /**
@@ -368,12 +368,12 @@ class Message extends Base {
     async forward(chat) {
         const chatId = typeof chat === 'string' ? chat : chat.id._serialized;
 
-        await this.client.pupPage.evaluate(async (msgId, chatId) => {
+        await this.client.pupPage.evaluate(async ({ msgId, chatId }) => {
             let msg = window.Store.Msg.get(msgId);
             let chat = window.Store.Chat.get(chatId);
 
             return await chat.forwardMessages([msg]);
-        }, this.id._serialized, chatId);
+        }, { msgId: this.id._serialized, chatId });
     }
 
     /**
@@ -385,31 +385,36 @@ class Message extends Base {
             return undefined;
         }
 
-        const result = await this.client.pupPage.evaluate(async (msg) => {
+        const result = await this.pupPage.evaluate(async ({ directPath, encFilehash, filehash, mediaKey, type, mediaKeyTimestamp, mimetype, filename, size,  _serialized }) => {
             try {
                 const decryptedMedia = await (window.Store.DownloadManager?.downloadAndMaybeDecrypt || window.Store.DownloadManager?.downloadAndDecrypt)({
-                    directPath: msg.directPath,
-                    encFilehash: msg.encFilehash,
-                    filehash: msg.filehash,
-                    mediaKey: msg.mediaKey,
-                    mediaKeyTimestamp: msg.mediaKeyTimestamp,
-                    type: msg.type,
+                    directPath,
+                    encFilehash,
+                    filehash,
+                    mediaKey,
+                    mediaKeyTimestamp,
+                    type: (type === 'chat') ? (mimetype.split('/')[0] || type) : type,
                     signal: (new AbortController).signal
                 });
 
-                const data = await window.WWebJS.arrayBufferToBase64Async(decryptedMedia);
+                const data = await window.WWebJS.arrayBufferToBase64(decryptedMedia);
 
                 return {
                     data,
-                    mimetype: msg.mimetype,
-                    filename: msg.filename,
-                    filesize: msg.size
+                    mimetype: mimetype,
+                    filename: filename,
+                    filesize: size
                 };
             } catch (e) {
-                if (e.status && e.status === 404) return undefined
-                throw e
+                const blob = await window.WWebJS.chat.downloadMedia(_serialized)
+                return {
+                    data: await window.WWebJS.util.blobToBase64(blob),
+                    mimetype: mimetype,
+                    filename: filename,
+                    filesize: size
+                }
             }
-        }, this)
+        }, { directPath: this.directPath, encFilehash: this.encFilehash, filehash: this.filehash, mediaKey: this.mediaKey, type: this.type, mediaKeyTimestamp: this.mediaKeyTimestamp, mimetype: this.mime, filename: this.filename, size: this.fileSize,  _serialized: this.id._serialized })
 
         if (!result) return undefined
         return new MessageMedia(result.mimetype, result.data, result.filename, result.filesize);
@@ -420,9 +425,9 @@ class Message extends Base {
      * @param {?boolean} everyone If true and the message is sent by the current user or the user is an admin, will delete it for everyone in the chat.
      */
     async delete(everyone) {
-        await this.client.pupPage.evaluate(async (msgId, everyone) => {
+        await this.client.pupPage.evaluate(async ({ msgId, everyone }) => {
             let msg = window.Store.Msg.get(msgId);
-            let chat = await window.Store.Chat.find(msg.id.remote);
+            let chat = await window.Store.Chat.find(msg.id.remote || msg.chat);
             
             const canRevoke = window.Store.MsgActionChecks.canSenderRevokeMsg(msg) || window.Store.MsgActionChecks.canAdminRevokeMsg(msg);
             if (everyone && canRevoke) {
@@ -430,7 +435,7 @@ class Message extends Base {
             }
 
             return window.Store.Cmd.sendDeleteMsgs(chat, [msg], true);
-        }, this.id._serialized, everyone);
+        }, { msgId: this.id._serialized, everyone });
     }
 
     /**
@@ -494,9 +499,9 @@ class Message extends Base {
      */
     async getOrder() {
         if (this.type === MessageTypes.ORDER) {
-            const result = await this.client.pupPage.evaluate((orderId, token, chatId) => {
+            const result = await this.client.pupPage.evaluate(({ orderId, token, chatId }) => {
                 return window.WWebJS.getOrderDetail(orderId, token, chatId);
-            }, this.orderId, this.token, this._getChatId());
+            }, { orderId: this.orderId, token: this.token, chatId: this._getChatId()});
             if (!result) return undefined;
             return new Order(this.client, result);
         }
@@ -541,9 +546,9 @@ class Message extends Base {
     async vote(selectedOptions) {
         if (this.type !== MessageTypes.POLL_CREATION) throw 'Invalid usage! Can only be used with a pollCreation message';
         
-        return await this.client.pupPage.evaluate((creationMsgId, selectedOptions) => {
+        return await this.client.pupPage.evaluate(({ creationMsgId, selectedOptions }) => {
             window.WWebJS.votePoll(creationMsgId, selectedOptions);
-        }, this.id._serialized, selectedOptions);
+        }, { creationMsgId: this.id._serialized, selectedOptions });
     }
 }
 

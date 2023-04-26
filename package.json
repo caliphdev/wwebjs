@@ -37,9 +37,7 @@
     "link-preview-js": "^3.0.4",
     "mime": "^3.0.0",
     "node-webpmux": "^3.1.0",
-    "puppeteer": "^19.8.5",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "playwright-chromium": "^1.32.3",
     "sharp": "0.32.0"
   },
   "devDependencies": {

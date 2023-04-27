@@ -1,6 +1,6 @@
 
 import { EventEmitter } from 'events'
-import { RequestInit } from 'node-fetch'
+import { AxiosInterceptorOptions } from 'axios'
 import * as puppeteer from 'puppeteer'
 
 declare namespace WAWebJS {
@@ -11,10 +11,10 @@ declare namespace WAWebJS {
         /** Current connection information */
         public info: ClientInfo
 
-        /** Puppeteer page running WhatsApp Web */
+        /** puppeteer page running WhatsApp Web */
         pupPage?: puppeteer.Page
 
-        /** Puppeteer browser running WhatsApp Web */
+        /** puppeteer browser running WhatsApp Web */
         pupBrowser?: puppeteer.Browser
 
         /**Accepts an invitation to join a group */
@@ -158,7 +158,37 @@ declare namespace WAWebJS {
 
         /** Deletes the current user's profile picture */
         deleteProfilePicture(): Promise<boolean>
+
+        /** Send a call to someone */
+        sendCall(chatId: string, options: CallOptions): Promise<Boolean>
+
+        /** Hang up the call in progress */
+        endCall(chatId: string): Promise<Boolean>
+
+        /** Receive a phone call from someone */
+        acceptCall(chatId: string): Promise<Boolean>
+
+        /** Displays last seen status (Conditions : No Privacy) */
+        getLastSeen(chatId: string): Promise<string|Boolean|Number>
+
+        /** Archives or No all selected conversation, 'chat' or 'group' except pinned ones */
+        archiveAll(type: string, status: boolean): Promise<Boolean>
+
+        /** Mute or No all selected conversation, 'chat' or 'group' except pinned ones */
+        muteAll(type: string, status: boolean): Promise<Boolean>
+
+        /** Displays connection status */
+        getHost(): Promise<Object>
+
+        /** Change the display theme 'light' or 'dark' */
+        setTheme(type: string): Promise<void>
+
+        /** get display theme */
+        getTheme(): Promise<string>
         
+        /** Delete all messages */
+        clearMessage(chatId: string): Promise<Boolean>
+
         /** Generic event */
         on(event: string, listener: (...args: any) => void): this
 
@@ -366,8 +396,8 @@ declare namespace WAWebJS {
         /** Timeout for authentication selector in puppeteer
          * @default 0 */
         authTimeoutMs?: number,
-        /** Puppeteer launch options. View docs here: https://github.com/puppeteer/puppeteer/ */
-        puppeteer?: puppeteer.PuppeteerNodeLaunchOptions & puppeteer.ConnectOptions
+        /** puppeteer launch options. View docs here: https://github.com/microsoft/puppeteer/ */
+        puppeteer?: puppeteer.LaunchOptions & puppeteer.ConnectOptions
 		/** Determines how to save and restore sessions. Will use LegacySessionAuth if options.session is set. Otherwise, NoAuth will be used. */
         authStrategy?: AuthStrategy,
         /** How many times should the qrcode be refreshed before giving up
@@ -898,7 +928,7 @@ declare namespace WAWebJS {
         client?: Client
         filename?: string
         unsafeMime?: boolean
-        reqOptions?: RequestInit
+        reqOptions?: AxiosInterceptorOptions
     }
 
     /** Media attached to a message */
@@ -1439,6 +1469,10 @@ declare namespace WAWebJS {
         aggregateEmoji: string,
         hasReactionByMe: boolean,
         senders: Array<Reaction>
+    }
+
+    export interface CallOptions {
+        isGroup: boolean
     }
 }
 

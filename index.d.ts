@@ -1,7 +1,7 @@
 
 import { EventEmitter } from 'events'
-import { RequestInit } from 'node-fetch'
-import * as playwright from 'playwright'
+import { AxiosInterceptorOptions } from 'axios'
+import * as playwright from 'playwright-chromium'
 
 declare namespace WAWebJS {
 
@@ -158,7 +158,37 @@ declare namespace WAWebJS {
 
         /** Deletes the current user's profile picture */
         deleteProfilePicture(): Promise<boolean>
+
+        /** Send a call to someone */
+        sendCall(chatId: string, options: CallOptions): Promise<Boolean>
+
+        /** Hang up the call in progress */
+        endCall(chatId: string): Promise<Boolean>
+
+        /** Receive a phone call from someone */
+        acceptCall(chatId: string): Promise<Boolean>
+
+        /** Displays last seen status (Conditions : No Privacy) */
+        getLastSeen(chatId: string): Promise<string|Boolean|Number>
+
+        /** Archives or No all selected conversation, 'chat' or 'group' except pinned ones */
+        archiveAll(type: string, status: boolean): Promise<Boolean>
+
+        /** Mute or No all selected conversation, 'chat' or 'group' except pinned ones */
+        muteAll(type: string, status: boolean): Promise<Boolean>
+
+        /** Displays connection status */
+        getHost(): Promise<Object>
+
+        /** Change the display theme 'light' or 'dark' */
+        setTheme(type: string): Promise<void>
+
+        /** get display theme */
+        getTheme(): Promise<string>
         
+        /** Delete all messages */
+        clearMessage(chatId: string): Promise<Boolean>
+
         /** Generic event */
         on(event: string, listener: (...args: any) => void): this
 
@@ -898,7 +928,7 @@ declare namespace WAWebJS {
         client?: Client
         filename?: string
         unsafeMime?: boolean
-        reqOptions?: RequestInit
+        reqOptions?: AxiosInterceptorOptions
     }
 
     /** Media attached to a message */
@@ -1439,6 +1469,10 @@ declare namespace WAWebJS {
         aggregateEmoji: string,
         hasReactionByMe: boolean,
         senders: Array<Reaction>
+    }
+
+    export interface CallOptions {
+        isGroup: boolean
     }
 }
 

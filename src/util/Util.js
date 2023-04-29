@@ -5,7 +5,7 @@ import Crypto from "crypto";
 import { tmpdir } from 'os';
 import ffmpeg from 'fluent-ffmpeg';
 import webp from 'node-webpmux';
-import sharp from 'sharp';
+import { Readable } from 'stream'
 import fs from 'fs/promises';
 const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 
@@ -83,7 +83,7 @@ class Util {
             `${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.webp`
         );
 
-        const stream = new (require('stream').Readable)();
+        const stream = new Readable();
         const buffer = Buffer.from(
             media.data.replace(`data:${media.mimetype};base64,`, ''),
             'base64'
@@ -210,37 +210,6 @@ class Util {
             throw new Error(color);
         }
         return assertedColor;
-    }
-
-    /**
-     * Cropped image to profile's picture size
-     * @param {Buffer} buffer
-     * @return {Promise<{preview: Promise<string>, img: Promise<string>}>}
-     */
-    static async generateProfilePicture(buffer, type = 'normal'){
-        /**
-         * @param {Sharp} img
-         * @param {number} maxSize
-         * @return {Promise<Sharp>}
-         */
-        const resizeByMax = async (img, maxSize) => {
-            const metadata = await img.metadata();
-            const outputRatio = maxSize/Math.max(metadata.height, metadata.width);
-            return img.resize(Math.floor(metadata.width * outputRatio), Math.floor(metadata.height * outputRatio));
-        };
-        /**
-         * @param {Sharp} img
-         * @return {Promise<string>}
-         */
-        const imgToBase64 = async (img) => {
-            return Buffer.from(await img.toFormat('jpg').toBuffer()).toString('base64');
-        };
-        
-        const img = await sharp(buffer);
-        return {
-            img: (type === 'long') ? await imgToBase64(await resizeByMax(img, 720)) : await imgToBase64(await resizeByMax(img, 640)),
-            preview: (type === 'long') ? await imgToBase64(await resizeByMax(img, 120)) : await imgToBase64(await resizeByMax(img, 96))
-        };
     }
 }
 

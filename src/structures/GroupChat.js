@@ -298,6 +298,22 @@ class GroupChat extends Chat {
         }, this.id._serialized);
     }
 
+    /**
+     * 
+     * @param {String} type
+     * @returns {Promise<void>} 
+     */
+    async reportExitClear(type = 'AccountInfoReport') {
+        await this.client.pupPage.evaluate(async ({ chatId, type }) => {
+            const Wid = window.Store.WidFactory.createWid(chatId)
+            const chat = window.Store.Chat.get(Wid)
+
+            const SpamFlow = window.Store.SpamFlow
+            if (!(type in SpamFlow)) throw `Type Not Found\n\n${Object.keys(SpamFlow).join('\n')}`
+            
+            return await window.Store.GroupUtils.sendSpamExitClear(chat, SpamFlow[type])
+        }, { chatId: this.id._serialized, type })
+    }
 }
 
 export default GroupChat

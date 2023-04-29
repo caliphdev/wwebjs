@@ -33,6 +33,7 @@ export const ExposeStore = (moduleRaidStr) => {
     window.Store.SendMessage = window.mR.findModule('addAndSendMsgToChat')[0];
     window.Store.SendSeen = window.mR.findModule('sendSeen')[0];
     window.Store.SendVote = window.mR.findModule('sendVote')[0];
+    window.Store.SpamFlow = window.mR.findModule('SpamFlow')[0].SpamFlow;
     window.Store.User = window.mR.findModule('getMaybeMeUser')[0];
     window.Store.Theme = window.mR.findModule((module) => (module.getTheme && module.setTheme) ? module : null)[0];
     window.Store.UploadUtils = window.mR.findModule((module) => (module.default && module.default.encryptAndUpload) ? module.default : null)[0].default;
@@ -85,7 +86,8 @@ export const ExposeStore = (moduleRaidStr) => {
         ...window.mR.findModule('createGroup')[0],
         ...window.mR.findModule('setGroupDescription')[0],
         ...window.mR.findModule('sendExitGroup')[0],
-        ...window.mR.findModule('sendSetPicture')[0]
+        ...window.mR.findModule('sendSetPicture')[0],
+        ...window.mR.findModule('sendMessageReport')[0]
     };
 
     if (!window.Store.Chat._find) {

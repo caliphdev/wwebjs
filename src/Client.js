@@ -1051,6 +1051,12 @@ class Client extends EventEmitter {
         unmuteDate = unmuteDate ? unmuteDate : -1;
         await this.pupPage.evaluate(async (chatId, timestamp) => {
             let chat = await window.Store.Chat.get(chatId);
+            
+            let canMute = chat.mute.canMute()
+            if (!canMute) {
+                throw `Can't mute this chat`
+            }
+            
             await chat.mute.mute({expiration: timestamp, sendDevice:!0});
         }, chatId, unmuteDate || -1);
     }

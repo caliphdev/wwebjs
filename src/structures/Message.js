@@ -545,6 +545,23 @@ class Message extends Base {
             window.WWebJS.votePoll(creationMsgId, selectedOptions);
         }, this.id._serialized, selectedOptions);
     }
+    
+    /**
+     * 
+     * @param {Boolean} block block or no user
+     * @returns {Promise<void>}
+     */
+    async report(block = false) {
+        await this.client.pupPage.evaluate(async ({ msgId, block }) => {
+            let msg = await window.Store.Msg.get(msgId)
+
+            if (block) {
+                return window.Store.GroupUtils.sendMessageReportBlock(msg)
+            } else {
+                return window.Store.GroupUtils.sendMessageReport(msg)
+            }
+        }, { msgId: this.id._serialized, block })
+    }
 }
 
 export default Message;

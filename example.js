@@ -2,7 +2,7 @@ import { Client, Location, List, Buttons, LocalAuth } from './index.js'
 
 const client = new Client({
     authStrategy: new LocalAuth(),
-    puppeteer: { headless: false }
+    playwright: { headless: false }
 });
 
 client.initialize();

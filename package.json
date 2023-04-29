@@ -1,7 +1,7 @@
 {
   "name": "whatsapp-web.js",
   "version": "1.19.4",
-  "description": "Library for interacting with the WhatsApp Web API ",
+  "description": "Remake from Repository pedroslopez by Dika Ardnt.",
   "main": "./index.js",
   "typings": "./index.d.ts",
   "type": "module",

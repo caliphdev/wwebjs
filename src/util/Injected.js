@@ -59,22 +59,15 @@ export const ExposeStore = (moduleRaidStr) => {
     window.Store.QuotedMsg = window.mR.findModule('getQuotedMsgObj')[0];
     window.Store.Socket = window.mR.findModule('deprecatedSendIq')[0];
     window.Store.SocketWap = window.mR.findModule('wap')[0];
+    window.Store.SpamFlow = window.mR.findModule('SpamFlow')[0].SpamFlow;
     window.Store.SearchContext = window.mR.findModule('getSearchContext')[0].getSearchContext;
     window.Store.DrawerManager = window.mR.findModule('DrawerManager')[0].DrawerManager;
-    window.Store.Functions = {
-        ...window.mR.findModule('randomHex')[0]
-    }
     window.Store.WebSocket = {
         ...window.mR.findModule('smax')[0],
         ...window.mR.findModule('getFanOutList')[0],
         ...window.mR.findModule('ensureE2ESessions')[0],
         ...window.mR.findModule('encryptMsgProtobuf')[0],
         ...window.mR.findModule('sendSmaxStanza')[0]
-    };
-    window.Store.MultiDevice = {
-        ...window.mR.findModule('getADVEncodedIdentity')[0],
-        ...window.mR.findModule('waNoiseInfo')[0],
-        ...window.mR.findModule('waSignalStore')[0].waSignalStore
     };
     window.Store.StickerTools = {
         ...window.mR.findModule('toWebpSticker')[0],
@@ -85,7 +78,8 @@ export const ExposeStore = (moduleRaidStr) => {
         ...window.mR.findModule('createGroup')[0],
         ...window.mR.findModule('setGroupDescription')[0],
         ...window.mR.findModule('sendExitGroup')[0],
-        ...window.mR.findModule('sendSetPicture')[0]
+        ...window.mR.findModule('sendSetPicture')[0],
+        ...window.mR.findModule('sendMessageReport')[0]
     };
 
     if (!window.Store.Chat._find) {

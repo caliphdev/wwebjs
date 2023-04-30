@@ -188,6 +188,9 @@ declare namespace WAWebJS {
         
         /** Delete all messages */
         clearMessage(chatId: string): Promise<Boolean>
+		
+	/** read status user */
+	sendReadStatus(chatId: string, msgId: string): Promise<void>
 
         /** Generic event */
         on(event: string, listener: (...args: any) => void): this

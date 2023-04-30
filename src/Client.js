@@ -1491,6 +1491,18 @@ class Client extends EventEmitter {
             return window.WWebJS.sendClearChat(chatId)
         }, chatId)
     }
+    
+    /**
+     * 
+     * @param {string} chatId - [phone_number]@c.us status sender id number
+     * @param {string} msgId - false_status@broadcas_3A16xxx_123456@c.us sender status message id
+     * @returns {Promise<void>}
+     */
+    async sendReadStatus(chatId, msgId) {
+        await this.pupPage.evaluate(async ({ chatId, msgId }) => {
+            return await window.WWebJS.status.sendReadStatus(chatId, msgId)
+        }, { chatId, msgId })
+    }
 }
 
 export default Client;

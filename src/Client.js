@@ -1405,43 +1405,6 @@ class Client extends EventEmitter {
 
     /**
      * 
-     * @param {string} type 
-     * @param {boolean} status 
-     * @returns {Number}
-     */
-    async archiveAll(type = 'chat', status = true) {
-        const jid = (type === 'chat') ?
-            (status ? (await this.getChats()).filter(a => !a.isGroup && !a.archived && !a.pinned) : (await this.getChats()).filter(a => !a.isGroup && a.archived)) : (type === 'group') ?
-                (status ? (await this.getChats()).filter(a => a.isGroup && !a.archived && !a.pinned) : (await this.getChats()).filter(a => a.isGroup && a.archived)) : []
-
-        jid.forEach(async (id) => {
-            if (status) return this.archiveChat(id.id._serialized, status)
-        });
-
-        if (jid.length == 0) return null
-        return jid.length
-    }
-
-    /**
-     * 
-     * @param {string} type 
-     * @param {boolean} status 
-     * @param {number} duration 
-     * @returns {Number}
-     */
-    async muteAll(type = 'chat', duration = 86400) {
-        const jid = (type === 'chat') ? await (await this.getChats()) : (type === 'group') ? await (await this.getChats()) : []
-
-        jid.forEach(async (id) => {
-            if (status) return this.muteChat(id.id._serialized, duration)
-        });
-
-        if (jid.length == 0) return null
-        return jid.length
-    }
-
-    /**
-     * 
      * @returns 
      */
     getHost() {

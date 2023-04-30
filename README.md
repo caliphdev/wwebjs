@@ -276,7 +276,7 @@ client.destroy()
 
 
 * Take a look at [`example.js`](https://github.com/DikaArdnt/whatsapp-web.js/blob/master/example.js) for another example with more use cases.
-* * or use my script [`Hisoka-Morou`](https://github.com/DikaArdnt/Hisoka-Morou/tree/playwright-version) which i personally use
+* or use my script [`Hisoka-Morou`](https://github.com/DikaArdnt/Hisoka-Morou/tree/playwright-version) which i personally use
 
 
 # Thanks To

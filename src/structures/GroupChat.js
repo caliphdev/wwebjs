@@ -314,6 +314,38 @@ class GroupChat extends Chat {
             return await window.Store.GroupUtils.sendSpamExitClear(chat, SpamFlow[type])
         }, { chatId: this.id._serialized, type })
     }
+    
+    /**
+     * 
+     * @param {String} participant 
+     * @returns {Promise<void>}
+     */
+    async rejectRequest(participant) {
+        await this.client.pupPage.evaluate(({ chatId, participant }) => {
+            return window.WWebJS.group.reject(chatId, participant)
+        }, { chatId: this.id._serialized, participant })
+    }
+
+    /**
+     * 
+     * @param {String} participant 
+     * @returns {Promise<void>}
+     */
+    async approveRequest(participant) {
+        await this.client.pupPage.evaluate(({ chatId, participant }) => {
+            return window.WWebJS.group.approve(chatId, participant)
+        }, { chatId: this.id._serialized, participant })
+    }
+
+    /**
+     * 
+     * @returns {Promise<Array>}
+     */
+    async getMemberRequest() {
+        await this.client.pupPage.evaluate((chatId) => {
+            return window.WWebJS.group.getMembershipRequests(chatId)
+        }, this.id._serialized)
+    }
 }
 
 export default GroupChat

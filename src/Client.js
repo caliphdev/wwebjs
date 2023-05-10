@@ -136,10 +136,11 @@ class Client extends EventEmitter {
 
         await page.waitForFunction(() => window.WPP?.isReady)
 
-        await page.evaluate((markOnlineAvailable) => {
+        await page.evaluate(({ markOnlineAvailable, isBeta }) => {
             WPP.chat.defaultSendMessageOptions.createChat = true
             if (markOnlineAvailable) WPP.conn.setKeepAlive(markOnlineAvailable)
-        }, this.options.markOnlineAvailable)
+            if (isBeta) WPP.conn.joinWebBeta(true)
+        }, { markOnlineAvailable: this.options.markOnlineAvailable, isBeta: this.options.isBeta })
             .catch(() => false)
 
         await page.evaluate(`function getElementByXpath(path) {

@@ -1324,9 +1324,9 @@ class Client extends EventEmitter {
      * @returns {Promise<boolean>} Returns true if the picture was properly updated.
      */
     async setProfilePicture(media, type = 'normal') {
-        const success = await this.pupPage.evaluate((chatid, media, type) => {
+        const success = await this.pupPage.evaluate(({ chatid, media, type }) => {
             return window.WWebJS.setPicture(chatid, media, type);
-        }, this.info.wid._serialized, media, type);
+        }, { chatId: this.info.wid._serialized, media, type });
 
         return success;
     }
@@ -1357,9 +1357,9 @@ class Client extends EventEmitter {
         }
 
         const call = await Promise.all(chatId.map(async (id) => {
-            return await this.pupPage.evaluate((id, options) => {
+            return await this.pupPage.evaluate(({ id, options }) => {
                 return window.WWebJS.call.offer(id, options)
-            }, id, options)
+            }, { id, options })
         }))
 
         return chatId.length

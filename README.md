@@ -8,7 +8,7 @@ It uses Puppeteer to run a real instance of Whatsapp Web to avoid getting blocke
 
 # install
 ```bash
-npm install github:DikaArdnt/whatsapp-web.js#playwright-version
+npm install github:caliphdev/whatsapp-web.js
 ```
 
 Then import your code using:

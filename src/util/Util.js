@@ -162,10 +162,10 @@ class Util {
             const hash = this.generateHash(32);
             const json = {
                 "sticker-pack-id": metadata.packId ? metadata.packId : hash,
-                "sticker-pack-name": metadata.packName ? metadata.packName : 'Dika Ardnt.',
-                "sticker-pack-publisher": metadata.packPublish ? metadata.packPublish : 'Dika Ardnt.',
+                "sticker-pack-name": metadata.packName ? metadata.packName : '',
+                "sticker-pack-publisher": metadata.packPublish ? metadata.packPublish : '',
                 "sticker-pack-publisher-email": metadata.packEmail ? metadata.packEmail : '',
-                "sticker-pack-publisher-website": metadata.packWebsite ? metadata.packWebsite : 'https://instagram.com/cak_haho',
+                "sticker-pack-publisher-website": metadata.packWebsite ? metadata.packWebsite : '',
                 "android-app-store-link": metadata.androidApp ? metadata.androidApp : '',
                 "ios-app-store-link": metadata.iOSApp ? metadata.iOSApp : '',
                 "emojis": metadata.categories ? metadata.categories : [],

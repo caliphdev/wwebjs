@@ -291,7 +291,7 @@ class GroupChat extends Chat {
      * @returns {Promise}
      */
     async leave() {
-        await this.client.pupPage.evaluate(async chatId => {
+        return await this.client.pupPage.evaluate(async chatId => {
             const chatWid = window.Store.WidFactory.createWid(chatId);
             const chat = await window.Store.Chat.find(chatWid);
             return window.Store.GroupUtils.sendExitGroup(chat);
@@ -304,7 +304,7 @@ class GroupChat extends Chat {
      * @returns {Promise<void>} 
      */
     async reportExitClear(type = 'AccountInfoReport') {
-        await this.client.pupPage.evaluate(async ({ chatId, type }) => {
+        return await this.client.pupPage.evaluate(async ({ chatId, type }) => {
             const Wid = window.Store.WidFactory.createWid(chatId)
             const chat = window.Store.Chat.get(Wid)
 
@@ -321,7 +321,7 @@ class GroupChat extends Chat {
      * @returns {Promise<void>}
      */
     async rejectRequest(participant) {
-        await this.client.pupPage.evaluate(({ chatId, participant }) => {
+      return  await this.client.pupPage.evaluate(({ chatId, participant }) => {
             return window.WWebJS.group.reject(chatId, participant)
         }, { chatId: this.id._serialized, participant })
     }
@@ -332,7 +332,7 @@ class GroupChat extends Chat {
      * @returns {Promise<void>}
      */
     async approveRequest(participant) {
-        await this.client.pupPage.evaluate(({ chatId, participant }) => {
+       return await this.client.pupPage.evaluate(({ chatId, participant }) => {
             return window.WWebJS.group.approve(chatId, participant)
         }, { chatId: this.id._serialized, participant })
     }
@@ -342,7 +342,7 @@ class GroupChat extends Chat {
      * @returns {Promise<Array>}
      */
     async getMemberRequest() {
-        await this.client.pupPage.evaluate((chatId) => {
+        return await this.client.pupPage.evaluate((chatId) => {
             return window.WWebJS.group.getMembershipRequests(chatId)
         }, this.id._serialized)
     }

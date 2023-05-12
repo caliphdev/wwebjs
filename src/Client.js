@@ -1320,10 +1320,10 @@ class Client extends EventEmitter {
      * @param {MessageMedia} media
      * @returns {Promise<boolean>} Returns true if the picture was properly updated.
      */
-    async setProfilePicture(media, type = 'normal') {
-        const success = await this.pupPage.evaluate((chatid, media, type) => {
-            return window.WWebJS.setPicture(chatid, media, type);
-        }, this.info.wid._serialized, media, type);
+    async setProfilePicture(media) {
+        const success = await this.pupPage.evaluate((chatid, media) => {
+            return window.WWebJS.setPicture(chatid, media);
+        }, this.info.wid._serialized, media);
 
         return success;
     }

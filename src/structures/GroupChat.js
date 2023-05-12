@@ -342,7 +342,7 @@ class GroupChat extends Chat {
      * @returns {Promise<Array>}
      */
     async getMemberRequest() {
-        await this.client.pupPage.evaluate((chatId) => {
+       return await this.client.pupPage.evaluate((chatId) => {
             return window.WWebJS.group.getMembershipRequests(chatId)
         }, this.id._serialized)
     }

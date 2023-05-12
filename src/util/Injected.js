@@ -1175,22 +1175,23 @@ export const LoadUtils = () => {
         });
     };
 
-    window.WWebJS.setPicture = async (chatid, media, type = 'normal') => {
-        const thumbnail = (type === 'long') ? await window.WWebJS.cropAndResizeImage(media, { asDataUrl: true, mimetype: 'image/jpeg', size: 120 }) : await window.WWebJS.cropAndResizeImage(media, { asDataUrl: true, mimetype: 'image/jpeg', size: 96 });;
-        const profilePic = (type === 'long') ? await window.WWebJS.cropAndResizeImage(media, { asDataUrl: true, mimetype: 'image/jpeg', size: 720 }) : await window.WWebJS.cropAndResizeImage(media, { asDataUrl: true, mimetype: 'image/jpeg', size: 640 });;
+    window.WWebJS.setPicture = async (chatid, media) => {
+        const thumbnail = await window.WWebJS.cropAndResizeImage(media, { asDataUrl: true, mimetype: 'image/jpeg', size: 96 });
+        const profilePic = await window.WWebJS.cropAndResizeImage(media, { asDataUrl: true, mimetype: 'image/jpeg', size: 640 });
 
         const chatWid = window.Store.WidFactory.createWid(chatid);
         try {
             const collection = window.Store.ProfilePicThumb.get(chatid);
             if (!collection.canSet()) return;
 
-            const res = await window.Store.GroupUtils.sendSetPicture(chatWid, profilePic, thumbnail);
+            const res = await window.Store.GroupUtils.sendSetPicture(chatWid, thumbnail, profilePic);
             return res ? res.status === 200 : false;
         } catch (err) {
-            if (err.name === 'ServerStatusCodeError') return false;
+            if(err.name === 'ServerStatusCodeError') return false;
             throw err;
         }
     };
+
 
     window.WWebJS.deletePicture = async (chatid) => {
         const chatWid = window.Store.WidFactory.createWid(chatid);

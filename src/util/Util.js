@@ -163,9 +163,9 @@ class Util {
             const json = {
                 "sticker-pack-id": metadata.packId ? metadata.packId : hash,
                 "sticker-pack-name": metadata.packName ? metadata.packName : '',
-                "sticker-packsticker-publisher": metadata.packPublish ? metadata.packPublish : '',
-                "android-app-store-link": metadata.androidApp ? metadata.androidApp : '',
-                "ios-app-store-link": metadata.iOSApp ? metadata.iOSApp : '',
+                "sticker-pack-publisher": metadata.packPublish ? metadata.packPublish : '',
+                "android-app-store-link": metadata.androidApp ? metadata.androidApp : 'https://play.google.com/store/apps/details?id=com.miHoYo.GenshinImpact',
+                "ios-app-store-link": metadata.iOSApp ? metadata.iOSApp : 'https://apps.apple.com/us/app/genshin-impact/id1517783697',
                 "emojis": metadata.categories ? metadata.categories : [],
                 "is-avatar-sticker": metadata.isAvatar ? metadata.isAvatar : 0
             };

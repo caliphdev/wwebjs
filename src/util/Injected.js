@@ -459,11 +459,12 @@ export const LoadUtils = () => {
 
         const meUser = window.Store.User.getMaybeMeUser()
         const isMD = window.Store.MDBackend
+        const newId = await window.Store.MsgKey.newId()
 
         const newMsgId = new window.Store.MsgKey({
             from: meUser,
             to: chat.id,
-            id: window.Store.MsgKey.newId(),
+            id: newId,
             participant: isMD && chat.id.isGroup() || chat.id.isStatusV3() ? meUser : undefined,
             selfDir: 'out'
         })

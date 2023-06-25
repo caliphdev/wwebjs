@@ -195,7 +195,7 @@ class GroupChat extends Chat {
      * @returns {Promise<boolean>} Returns true if the setting was properly updated. This can return false if the user does not have the necessary permissions.
      */
     async setMemberApprovalMode(adminsOnly = true) {
-        const succes = await this.client.pupPage.evaluate(async ({ chatId, adminsOnly }) => {
+        const success = await this.client.pupPage.evaluate(async ({ chatId, adminsOnly }) => {
             const chatWid = window.Store.WidFactory.createWid(chatId);
             try {
                 await window.Store.GroupUtils.setGroupProperty(chatWid, 'membership_approval_mode', adminsOnly ? 1 : 0);

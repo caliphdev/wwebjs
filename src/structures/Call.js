@@ -38,12 +38,12 @@ class Call extends Base {
          * Is Group
          * @type {boolean}
          */
-        this.isGroup = data.__x_isGroup;
+        this.isGroup = Boolean(typeof data.__x_isGroup == "boolean");
         /**
          * Indicates if the call was sent by the current user
          * @type {boolean}
          */
-        this.fromMe = data.__x_outgoing;
+        this.fromMe = Boolean(typeof data.__x_outgoing == "boolean");
         /**
          * Indicates if the call can be handled in waweb
          * @type {boolean}
@@ -53,7 +53,7 @@ class Call extends Base {
          * Indicates if the call Should be handled in waweb
          * @type {boolean}
          */
-        this.webClientShouldHandle = data.__x_webClientShouldHandle;
+        this.webClientShouldHandle = Boolean(typeof data.__x_webClientShouldHandle == "boolean");
         /**
          * 
          * @type {string}
@@ -63,7 +63,7 @@ class Call extends Base {
          * Object with participants
          * @type {object}
          */
-        this.participants = data.__x_participants;
+        this.participants = data.participants;
 
         return super._patch(data);
     }
@@ -74,7 +74,7 @@ class Call extends Base {
     async reject() {
         return this.client.pupPage.evaluate(({ peerJid, id }) => {
             return window.WWebJS.rejectCall(peerJid, id);
-        }, { peerJid: this.from, id: this.id });
+        }, { peerJid: this.from._serialized, id: this.id });
     }
 }
 

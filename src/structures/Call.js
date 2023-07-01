@@ -14,6 +14,7 @@ class Call extends Base {
     }
 
     _patch(data) {
+        console.log(data);
         /**
          * Call ID
          * @type {string}

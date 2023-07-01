@@ -18,54 +18,53 @@ class Call extends Base {
          * Call ID
          * @type {string}
          */
-        this.id = data.id;
+        this.id = data.__x_id;
         /**
          * From
          * @type {string}
          */
-        this.from = data.peerJid;
+        this.from = data.__x_peerJid;
         /**
          * Unix timestamp for when the call was created
          * @type {number}
          */
-        this.timestamp = data.offerTime;
+        this.timestamp = data.__x_offerTime;
         /**
          * Is video
          * @type {boolean}
          */
-        this.isVideo = data.isVideo;
+        this.isVideo = data.__x_isVideo;
         /**
          * Is Group
          * @type {boolean}
          */
-        this.isGroup = data.isGroup;
+        this.isGroup = data.__x_isGroup;
         /**
          * Indicates if the call was sent by the current user
          * @type {boolean}
          */
-        this.fromMe = data.outgoing;
+        this.fromMe = data.__x_outgoing;
         /**
          * Indicates if the call can be handled in waweb
          * @type {boolean}
          */
-        this.canHandleLocally = data.canHandleLocally;
+        this.canHandleLocally = data.__x_canHandleLocally;
         /**
          * Indicates if the call Should be handled in waweb
          * @type {boolean}
          */
-        this.webClientShouldHandle = data.webClientShouldHandle;
+        this.webClientShouldHandle = data.__x_webClientShouldHandle;
         /**
          * 
          * @type {string}
          */
-        this.state = data._state;
+        this.state = data.__x__state;
         /**
          * Object with participants
          * @type {object}
          */
-        this.participants = data.participants;
+        this.participants = data.__x_participants;
 
-         console.log(super._patch(data));
         return super._patch(data);
     }
 

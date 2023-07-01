@@ -554,6 +554,7 @@ class Client extends EventEmitter {
              * @param {object} call.participants - Participants
              */
             const cll = new Call(this, call);
+            console.log(call)
             this.emit(Events.INCOMING_CALL, cll);
         });
 

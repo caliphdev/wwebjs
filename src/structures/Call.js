@@ -14,7 +14,6 @@ class Call extends Base {
     }
 
     _patch(data) {
-        console.log(data);
         /**
          * Call ID
          * @type {string}
@@ -65,7 +64,8 @@ class Call extends Base {
          * @type {object}
          */
         this.participants = data.participants;
-        
+
+         console.log(super._patch(data));
         return super._patch(data);
     }
 

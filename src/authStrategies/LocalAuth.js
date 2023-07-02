@@ -5,50 +5,56 @@ import fs from 'fs';
 import BaseAuthStrategy from './BaseAuthStrategy.js';
 
 /**
- * Local directory-based authentication
- * @param {object} options - options
- * @param {string} options.clientId - Client id to distinguish instances if you are using multiple, otherwise keep null if you are using only one instance
- * @param {string} options.dataPath - Change the default path for saving session files, default is: "./.wwebjs_auth/" 
+* Local directory-based authentication
+* @param {object} options - options
+* @param {string} options.clientId - Client id to distinguish instances if you are using multiple, otherwise keep null if you are using only one instance
+* @param {string} options.dataPath - Change the default path for saving session files, default is: "./.wwebjs_auth/"
 */
 class LocalAuth extends BaseAuthStrategy {
-    constructor({ clientId, dataPath } = {}) {
-        super();
+  constructor({
+    clientId, dataPath
+  } = {}) {
+    super();
 
-        const idRegex = /^[-_\w]+$/i;
-        if (clientId && !idRegex.test(clientId)) {
-            throw new Error('Invalid clientId. Only alphanumeric characters, underscores and hyphens are allowed.');
-        }
-
-        this.dataPath = path.resolve(dataPath || './.wwebjs_auth/');
-        this.clientId = clientId;
+    const idRegex = /^[-_\w]+$/i;
+    if (clientId && !idRegex.test(clientId)) {
+      throw new Error('Invalid clientId. Only alphanumeric characters, underscores and hyphens are allowed.');
     }
 
-    async beforeBrowserInitialized() {
-        const playwrightOpts = this.client.options.playwright;
-        const sessionDirName = this.clientId ? `session-${this.clientId}` : 'session';
-        const dirPath = path.join(this.dataPath, sessionDirName);
+    this.dataPath = path.resolve(dataPath || './.wwebjs_auth/');
+    this.clientId = clientId;
+  }
 
-        if (playwrightOpts.userDataDir && playwrightOpts.userDataDir !== dirPath) {
-            throw new Error('LocalAuth is not compatible with a user-supplied userDataDir.');
-        }
+  async beforeBrowserInitialized() {
+    const puppeteerOpts = this.client.options.puppeteer;
+    const sessionDirName = this.clientId ? `session-${this.clientId}`: 'session';
+    const dirPath = path.join(this.dataPath, sessionDirName);
 
-        fs.mkdirSync(dirPath, { recursive: true });
-
-        this.client.options.playwright = {
-            ...playwrightOpts,
-            userDataDir: dirPath
-        };
-
-        this.userDataDir = dirPath;
+    if (puppeteerOpts.userDataDir && puppeteerOpts.userDataDir !== dirPath) {
+      throw new Error('LocalAuth is not compatible with a user-supplied userDataDir.');
     }
 
-    async logout() {
-        if (this.userDataDir) {
-            try {
-                return (fs.rmSync ? fs.rmSync : fs.rmdirSync).call(this, this.userDataDir, { recursive: true });
-            } catch {}
-        }
+    fs.mkdirSync(dirPath, {
+      recursive: true
+    });
+
+    this.client.options.puppeteer = {
+      ...puppeteerOpts,
+      userDataDir: dirPath
+    };
+
+    this.userDataDir = dirPath;
+  }
+
+  async logout() {
+    if (this.userDataDir) {
+      try {
+        return (fs.rmSync ? fs.rmSync: fs.rmdirSync).call(this, this.userDataDir, {
+          recursive: true
+        });
+      } catch {}
     }
+  }
 
 }
 

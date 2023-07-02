@@ -538,6 +538,21 @@ class Client extends EventEmitter {
              */
             this.emit(Events.BATTERY_CHANGED, { battery, plugged });
         });
+        
+        await page.exposeFunction('onEditMessageEvent', (msg, newBody, prevBody) => {
+
+            if(msg.type === 'revoked'){
+                return;
+            }
+            /**
+             * Emitted when messages are edited
+             * @event Client#message_edit
+             * @param {Message} message
+             * @param {string} newBody
+             * @param {string} prevBody
+             */
+            this.emit(Events.MESSAGE_EDIT, new Message(this, msg), newBody, prevBody);
+        });
 
         await page.exposeFunction('onIncomingCall', (call) => {
             /**

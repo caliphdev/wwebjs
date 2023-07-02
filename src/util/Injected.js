@@ -31,6 +31,7 @@ export const ExposeStore = (moduleRaidStr) => {
     window.Store.SendClear = window.mR.findModule('sendClear')[0];
     window.Store.SendDelete = window.mR.findModule('sendDelete')[0];
     window.Store.SendMessage = window.mR.findModule('addAndSendMsgToChat')[0];
+    window.Store.EditMessage = window.mR.findModule('addAndSendMessageEdit')[0];
     window.Store.SendSeen = window.mR.findModule('sendSeen')[0];
     window.Store.SendVote = window.mR.findModule('sendVote')[0];
     window.Store.SpamFlow = window.mR.findModule('SpamFlow')[0].SpamFlow;
@@ -459,6 +460,40 @@ export const LoadUtils = () => {
         }
         return false;
 
+    };
+    
+    window.WWebJS.editMessage = async (msg, content, options = {}) => {
+
+        const extraOptions = options.extraOptions || {};
+        delete options.extraOptions;
+
+        if (options.mentionedJidList) {
+            options.mentionedJidList = options.mentionedJidList.map(cId => window.Store.Contact.get(cId).id);
+        }
+
+        if (options.linkPreview) {
+            options.linkPreview = null;
+
+            // Not supported yet by WhatsApp Web on MD
+            if(!window.Store.MDBackend) {
+                const link = window.Store.Validators.findLink(content);
+                if (link) {
+                    const preview = await window.Store.Wap.queryLinkPreview(link.url);
+                    preview.preview = true;
+                    preview.subtype = 'url';
+                    options = { ...options, ...preview };
+                }
+            }
+        }
+
+
+        const internalOptions = {
+            ...options,
+            ...extraOptions
+        };
+
+        await window.Store.EditMessage.sendMessageEdit(msg, content, internalOptions);
+        return window.Store.Msg.get(msg.id._serialized);
     };
 
     window.WWebJS.prepareRawMessage = async (chatId, message, options = {}) => {

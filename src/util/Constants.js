@@ -42,6 +42,7 @@ export const Events = {
     MESSAGE_REVOKED_ME: 'message_revoke_me',
     MESSAGE_ACK: 'message_ack',
     MESSAGE_REACTION: 'message_reaction',
+    MESSAGE_EDIT: 'message_edit',
     MEDIA_UPLOADED: 'media_uploaded',
     CONTACT_CHANGED: 'contact_changed',
     GROUP_ADMIN_CHANGED: 'group_admin_changed',

@@ -1,7 +1,8 @@
 'use strict';
 
 import EventEmitter from 'events';
-import playwright from 'playwright-chromium'
+import puppeteer from 'puppeteer-extra';
+import stealth from 'puppeteer-extra-plugin-stealth';
 import moduleRaid from '@pedroslopez/moduleraid/moduleraid.js';
 import { createRequire } from 'module';
 
@@ -91,32 +92,26 @@ class Client extends EventEmitter {
      * Sets up events and requirements, kicks off authentication request
      */
     async initialize() {
-        let [browser, context, page] = [null, null];
+        let [browser, page] = [null, null];
 
         await this.authStrategy.beforeBrowserInitialized();
 
-        const playwrightOpts = this.options.playwright;
-        if (playwrightOpts && playwrightOpts.wsEndpoint) {
-            browser = await playwright.chromium.connect(playwrightOpts.wsEndpoint, { timeout: 0, ...playwrightOpts });
-            page = await context.newPage();
+        const puppeteerOpts = this.options.puppeteer;
+        if (puppeteerOpts && puppeteerOpts.wsEndpoint) {
+            browser = await puppeteer.connect(puppeteerOpts);
+            page = await browser.newPage();
         } else {
-            const browserArgs = [...(playwrightOpts.args || [])];
+            const browserArgs = [...(puppeteerOpts.args || [])];
             if (!browserArgs.find(arg => arg.includes('--user-agent'))) {
                 browserArgs.push(`--user-agent=${this.options.userAgent}`);
             }
 
-            browser = await playwright.chromium.launchPersistentContext(playwrightOpts.userDataDir, {
-                ...playwrightOpts, 
-                args: browserArgs,
-                timeout: 0
-            });
+            browser = await puppeteer.launch({ ...puppeteerOpts, args: browserArgs });
             page = (await browser.pages())[0];
         }
 
         if (this.options.userAgent) {
-            await page.setExtraHTTPHeaders({
-                'User-Agent': this.options.userAgent
-            })
+          await page.setUserAgent(this.options.userAgent);
         }
 
         this.pupBrowser = browser;
@@ -133,7 +128,7 @@ class Client extends EventEmitter {
         await page.addScriptTag({
             path: require.resolve('@wppconnect/wa-js')
         })
-
+        
         await page.waitForFunction(() => window.WPP?.isReady)
 
         await page.evaluate(({ markOnlineAvailable, isBeta }) => {

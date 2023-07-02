@@ -605,7 +605,7 @@ class Message extends Base {
      * @returns {Promise<void>}
      */
     async report(block = false) {
-        await this.client.pupPage.evaluate(async ({ msgId, block }) => {
+        return await this.client.pupPage.evaluate(async ({ msgId, block }) => {
             let msg = await window.Store.Msg.get(msgId)
 
             if (block) {

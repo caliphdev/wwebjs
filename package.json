@@ -36,7 +36,9 @@
     "fluent-ffmpeg": "^2.1.2",
     "mime": "^3.0.0",
     "node-webpmux": "^3.1.0",
-    "playwright-chromium": "latest"
+    "puppeteer": "latest",
+    "puppeteer-extra": "latest",
+    "puppeteer-extra-plugin-stealth": "latest"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.5.12",

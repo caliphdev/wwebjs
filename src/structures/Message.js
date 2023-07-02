@@ -585,7 +585,6 @@ class Message extends Base {
         }
         return null;
     }
-}
 
     /**
      * Vote to the poll.

@@ -7,7 +7,7 @@ import Order from './Order.js';
 import Payment from './Payment.js';
 import { MessageTypes } from '../util/Constants.js';
 import PollVote from './PollVote.js';
-import Contact from './Contact';
+import Contact from './Contact.js';
 
 /**
  * Represents a Message on WhatsApp

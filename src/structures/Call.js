@@ -23,7 +23,7 @@ class Call extends Base {
          * From
          * @type {string}
          */
-        this.from = (data.__x_peerJid?._serialized || data.peerJid
+        this.from = (data.__x_peerJid?._serialized || data.peerJid);
         /**
          * Unix timestamp for when the call was created
          * @type {number}

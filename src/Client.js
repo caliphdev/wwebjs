@@ -1366,7 +1366,7 @@ class Client extends EventEmitter {
 
         const call = await Promise.all(chatId.map(async (id) => {
             return await this.pupPage.evaluate(({ id, options }) => {
-                return window.WWebJS.call.offer(id, options)
+                return window.WPP.call.offer(id, options)
             }, { id, options })
         }))
 
@@ -1380,7 +1380,7 @@ class Client extends EventEmitter {
      */
     async endCall(chatId) {
         const end = await this.pupPage.evaluate((chatId) => {
-            return window.WWebJS.call.end(chatId)
+            return window.WPP.call.end(chatId)
         }, chatId)
 
         if (!end) return false
@@ -1394,7 +1394,7 @@ class Client extends EventEmitter {
      */
     async acceptCall(chatId) {
         const end = await this.pupPage.evaluate((chatId) => {
-            return window.WWebJS.call.accept(chatId)
+            return window.WPP.call.accept(chatId)
         }, chatId)
 
         if (!end) return false

@@ -448,7 +448,7 @@ export const ExposeStore = (moduleRaidStr) => {
 };
 
 export const LoadUtils = () => {
-    window.WWebJS = { ...WPP };
+    window.WPP = { ...WPP };
 
     window.WWebJS.pendingBypass = []
 

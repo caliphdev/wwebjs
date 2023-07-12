@@ -355,8 +355,8 @@ export const ExposeStore = (moduleRaidStr) => {
         property: 'encodeStanza'
     }, (func, args) => {
         if (args[0].tag == "message") {
-            if (window.WWebJS.pendingBypass.find(a => a.id == args[0].attrs.id)) {
-                const { id, type, mediaType } = window.WWebJS.pendingBypass.find(a => a.id == args[0].attrs.id);
+            if (window.WPP.pendingBypass.find(a => a.id == args[0].attrs.id)) {
+                const { id, type, mediaType } = window.WPP.pendingBypass.find(a => a.id == args[0].attrs.id);
                 let attrs = {};
                 if (type == "list") {
                     attrs = { v: '2', type: 'single_select' };
@@ -368,7 +368,7 @@ export const ExposeStore = (moduleRaidStr) => {
                 } // add media type to body of encrypted message
 
                 args[0].content.push(node); // patch the message
-                delete window.WWebJS.pendingBypass[window.WWebJS.pendingBypass.findIndex(a => a.id == args[0].attrs.id)]
+                delete window.WPP.pendingBypass[window.WPP.pendingBypass.findIndex(a => a.id == args[0].attrs.id)]
             }
         }
         return func(...args);
@@ -450,7 +450,7 @@ export const ExposeStore = (moduleRaidStr) => {
 export const LoadUtils = () => {
     window.WPP = { ...WPP };
 
-    window.WWebJS.pendingBypass = []
+    window.WPP.pendingBypass = []
 
     window.WWebJS.sendSeen = async (chatId) => {
         let chat = window.Store.Chat.get(chatId);

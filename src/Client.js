@@ -91,52 +91,50 @@ class Client extends EventEmitter {
     /**
      * Sets up events and requirements, kicks off authentication request
      */
-    async initialize() {
+     async initialize() {
         let [browser, page] = [null, null];
 
         await this.authStrategy.beforeBrowserInitialized();
 
         const puppeteerOpts = this.options.puppeteer;
-        if (puppeteerOpts && puppeteerOpts.wsEndpoint) {
+        if (puppeteerOpts && puppeteerOpts.browserWSEndpoint) {
             browser = await puppeteer.connect(puppeteerOpts);
             page = await browser.newPage();
         } else {
             const browserArgs = [...(puppeteerOpts.args || [])];
-            if (!browserArgs.find(arg => arg.includes('--user-agent'))) {
+            if(!browserArgs.find(arg => arg.includes('--user-agent'))) {
                 browserArgs.push(`--user-agent=${this.options.userAgent}`);
             }
 
-            browser = await puppeteer.launch({ ...puppeteerOpts, args: browserArgs });
+            browser = await puppeteer.launch({...puppeteerOpts, args: browserArgs});
             page = (await browser.pages())[0];
         }
 
-        if (this.options.userAgent) {
-          await page.setUserAgent(this.options.userAgent);
+        if (this.options.proxyAuthentication !== undefined) {
+            await page.authenticate(this.options.proxyAuthentication);
         }
+      
+        await page.setUserAgent(this.options.userAgent);
+        if (this.options.bypassCSP) await page.setBypassCSP(true);
 
         this.pupBrowser = browser;
         this.pupPage = page;
 
         await this.authStrategy.afterBrowserInitialized();
+       // await this.initWebVersionCache();
 
         await page.goto(WhatsWebURL, {
-            waituntil: 'domcontentloaded',
+            waitUntil: 'load',
             timeout: 0,
             referer: 'https://whatsapp.com/'
         });
-
+        
         await page.addScriptTag({
             path: require.resolve('@wppconnect/wa-js')
         })
         
         await page.waitForFunction(() => window.WPP?.isReady)
-
-        await page.evaluate(({ markOnlineAvailable, isBeta }) => {
-            WPP.chat.defaultSendMessageOptions.createChat = true
-            if (markOnlineAvailable) WPP.conn.setKeepAlive(markOnlineAvailable)
-            if (isBeta) WPP.conn.joinWebBeta(true)
-        }, { markOnlineAvailable: this.options.markOnlineAvailable, isBeta: this.options.isBeta })
-            .catch(() => false)
+        
 
         await page.evaluate(`function getElementByXpath(path) {
             return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
@@ -207,7 +205,7 @@ class Client extends EventEmitter {
         // Scan-qrcode selector was found. Needs authentication
         if (needAuthentication) {
             const { failed, failureEventPayload, restart } = await this.authStrategy.onAuthenticationNeeded();
-            if (failed) {
+            if(failed) {
                 /**
                  * Emitted when there has been an error while trying to restore an existing session
                  * @event Client#auth_failure
@@ -251,11 +249,11 @@ class Client extends EventEmitter {
                         if (mut.type === 'attributes' && mut.attributeName === 'data-ref') {
                             window.qrChanged(mut.target.dataset.ref);
                         } else
-                            // Listens to retry button, when found, click it
-                            if (mut.type === 'childList') {
-                                const retry_button = document.querySelector(selectors.QR_RETRY_BUTTON);
-                                if (retry_button) retry_button.click();
-                            }
+                        // Listens to retry button, when found, click it
+                        if (mut.type === 'childList') {
+                            const retry_button = document.querySelector(selectors.QR_RETRY_BUTTON);
+                            if (retry_button) retry_button.click();
+                        }
                     });
                 });
                 obs.observe(qr_container.parentElement, {
@@ -272,10 +270,10 @@ class Client extends EventEmitter {
             // Wait for code scan
             try {
                 await page.waitForSelector(INTRO_IMG_SELECTOR, { timeout: 0 });
-            } catch (error) {
+            } catch(error) {
                 if (
-                    error.name === 'ProtocolError' &&
-                    error.message &&
+                    error.name === 'ProtocolError' && 
+                    error.message && 
                     error.message.match(/Target closed/)
                 ) {
                     // something has called .destroy() while waiting
@@ -297,13 +295,7 @@ class Client extends EventEmitter {
         this.emit(Events.AUTHENTICATED, authEventPayload);
 
         // Check window.Store Injection
-        await page.waitForFunction(() => {
-            return (
-                typeof window.WWebJS !== 'undefined' &&
-                typeof window.Store !== 'undefined'
-            )
-        })
-        .catch(() => false);
+        await page.waitForFunction('window.Store != undefined');
 
         await page.evaluate(async () => {
             // safely unregister service workers
@@ -473,6 +465,15 @@ class Client extends EventEmitter {
 
         });
 
+        await page.exposeFunction('onChatUnreadCountEvent', async (data) =>{
+            const chat = await this.getChatById(data.id);
+            
+            /**
+             * Emitted when the chat unread count changes
+             */
+            this.emit(Events.UNREAD_COUNT, chat);
+        });
+
         await page.exposeFunction('onMessageMediaUploadedEvent', (msg) => {
 
             const message = new Message(this, msg);
@@ -533,21 +534,6 @@ class Client extends EventEmitter {
              */
             this.emit(Events.BATTERY_CHANGED, { battery, plugged });
         });
-        
-        await page.exposeFunction('onEditMessageEvent', (msg, newBody, prevBody) => {
-
-            if(msg.type === 'revoked'){
-                return;
-            }
-            /**
-             * Emitted when messages are edited
-             * @event Client#message_edit
-             * @param {Message} message
-             * @param {string} newBody
-             * @param {string} prevBody
-             */
-            this.emit(Events.MESSAGE_EDIT, new Message(this, msg), newBody, prevBody);
-        });
 
         await page.exposeFunction('onIncomingCall', (call) => {
             /**
@@ -564,21 +550,7 @@ class Client extends EventEmitter {
              * @param {object} call.participants - Participants
              */
             const cll = new Call(this, call);
-            console.log(cll)
             this.emit(Events.INCOMING_CALL, cll);
-        });
-
-        await page.exposeFunction('onPollVote', (vote) => {
-            const vote_ = new PollVote(this, vote);
-            /**
-             * Emitted when a poll vote is received
-             * @event Client#poll_vote
-             * @param {object} vote
-             * @param {string} vote.sender Sender of the vote
-             * @param {number} vote.senderTimestampMs Timestamp the vote was sent
-             * @param {Array<string>} vote.selectedOptions Options selected
-             */
-            this.emit(Events.POLL_VOTE, vote_);
         });
 
         await page.exposeFunction('onReaction', (reactions) => {
@@ -602,39 +574,64 @@ class Client extends EventEmitter {
             }
         });
 
+        await page.exposeFunction('onRemoveChatEvent', (chat) => {
+            /**
+             * Emitted when a chat is removed
+             * @event Client#chat_removed
+             * @param {Chat} chat
+             */
+            this.emit(Events.CHAT_REMOVED, new Chat(this, chat));
+        });
+        
+        await page.exposeFunction('onArchiveChatEvent', (chat, currState, prevState) => {
+            /**
+             * Emitted when a chat is archived/unarchived
+             * @event Client#chat_archived
+             * @param {Chat} chat
+             * @param {boolean} currState
+             * @param {boolean} prevState
+             */
+            this.emit(Events.CHAT_ARCHIVED, new Chat(this, chat), currState, prevState);
+        });
+
+        await page.exposeFunction('onEditMessageEvent', (msg, newBody, prevBody) => {
+            
+            if(msg.type === 'revoked'){
+                return;
+            }
+            /**
+             * Emitted when messages are edited
+             * @event Client#message_edit
+             * @param {Message} message
+             * @param {string} newBody
+             * @param {string} prevBody
+             */
+            this.emit(Events.MESSAGE_EDIT, new Message(this, msg), newBody, prevBody);
+        });
+
         await page.evaluate(() => {
             window.Store.Msg.on('change', (msg) => { window.onChangeMessageEvent(window.WWebJS.getMessageModel(msg)); });
             window.Store.Msg.on('change:type', (msg) => { window.onChangeMessageTypeEvent(window.WWebJS.getMessageModel(msg)); });
             window.Store.Msg.on('change:ack', (msg, ack) => { window.onMessageAckEvent(window.WWebJS.getMessageModel(msg), ack); });
             window.Store.Msg.on('change:isUnsentMedia', (msg, unsent) => { if (msg.id.fromMe && !unsent) window.onMessageMediaUploadedEvent(window.WWebJS.getMessageModel(msg)); });
             window.Store.Msg.on('remove', (msg) => { if (msg.isNewMsg) window.onRemoveMessageEvent(window.WWebJS.getMessageModel(msg)); });
+            window.Store.Msg.on('change:body', (msg, newBody, prevBody) => { window.onEditMessageEvent(window.WWebJS.getMessageModel(msg), newBody, prevBody); });
             window.Store.AppState.on('change:state', (_AppState, state) => { window.onAppStateChangedEvent(state); });
             window.Store.Conn.on('change:battery', (state) => { window.onBatteryStateChangedEvent(state); });
-            window.Store.Call.on('add', (call) => {
-                if (call.isGroup) {
-                    window.onIncomingCall(call)
-                }
-            });
-            window.Store.Call.on('change:_state change:state', (call) => {
-                if (call.getState() === 'INCOMING_RING') {
-                    window.onIncomingCall(call);
-                };
-            });
-            window.Store.Msg.on('add', (msg) => {
+            window.Store.Call.on('add', (call) => { window.onIncomingCall(call); });
+            window.Store.Chat.on('remove', async (chat) => { window.onRemoveChatEvent(await window.WWebJS.getChatModel(chat)); });
+            window.Store.Chat.on('change:archive', async (chat, currState, prevState) => { window.onArchiveChatEvent(await window.WWebJS.getChatModel(chat), currState, prevState); });
+            window.Store.Msg.on('add', (msg) => { 
                 if (msg.isNewMsg) {
-                    if (msg.type === 'ciphertext') {
+                    if(msg.type === 'ciphertext') {
                         // defer message event until ciphertext is resolved (type changed)
                         msg.once('change:type', (_msg) => window.onAddMessageEvent(window.WWebJS.getMessageModel(_msg)));
                     } else {
-                        window.onAddMessageEvent(window.WWebJS.getMessageModel(msg));
+                        window.onAddMessageEvent(window.WWebJS.getMessageModel(msg)); 
                     }
                 }
             });
-
-            window.Store.PollVote.on('add', (vote) => {
-                if (vote.parentMsgKey) vote.pollCreationMessage = window.Store.Msg.get(vote.parentMsgKey).serialize();
-                window.onPollVote(vote);
-            });
+            window.Store.Chat.on('change:unreadCount', (chat) => {window.onChatUnreadCountEvent(chat);});
 
             {
                 const module = window.Store.createOrUpdateReactionsModule;
@@ -645,7 +642,7 @@ class Client extends EventEmitter {
                         const parentMsgKey = window.Store.MsgKey.fromString(reaction.parentMsgKey);
                         const timestamp = reaction.timestamp / 1000;
 
-                        return { ...reaction, msgKey, parentMsgKey, timestamp };
+                        return {...reaction, msgKey, parentMsgKey, timestamp };
                     }));
 
                     return ogMethod(...args);
@@ -663,7 +660,7 @@ class Client extends EventEmitter {
         // Disconnect when navigating away when in PAIRING state (detect logout)
         this.pupPage.on('framenavigated', async () => {
             const appState = await this.getState();
-            if (!appState || appState === WAState.PAIRING) {
+            if(!appState || appState === WAState.PAIRING) {
                 await this.authStrategy.disconnect();
                 this.emit(Events.DISCONNECTED, 'NAVIGATION');
                 await this.destroy();
